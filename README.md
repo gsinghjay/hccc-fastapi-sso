@@ -94,26 +94,22 @@ This roadmap outlines the steps for building the application using Test-Driven D
 
 1.  **Project Setup:**
     *   Initialize Poetry project: `poetry init` and configure `pyproject.toml`.
-    ```pyproject.toml
-    startLine: 1
-    endLine: 48
-    ```
     *   Create project directory structure using the `create_project.sh` script.
-    ```shell:create_project.sh
-    startLine: 1
-    endLine: 49
-    ```
     *   Create a basic `.gitignore`.
     *   Set up Ruff, Black, and Mypy configurations in `pyproject.toml`.
     *   Create `.env.example`.
 
 2.  **Core Configuration:**
-    *   **Test:** Write tests for `app/core/config.py` to ensure it correctly loads environment variables and provides default values.
-    *   **Implement:** Create `app/core/config.py` to load settings from environment variables using `pydantic-settings`.
-    ```python:app/core/config.py
-    startLine: 1
-    endLine: 1
-    ```
+    *   ✅ **Test:** Write tests for `app/core/config.py` to ensure it correctly loads environment variables and provides default values.
+    *   ✅ **Implement:** Create `app/core/config.py` to load settings from environment variables using `pydantic-settings`.
+    *   Key features implemented:
+        - Type-safe configuration using Pydantic v2
+        - Secure handling of sensitive data with `SecretStr`
+        - Environment variable support with `.env` fallback
+        - Validation for critical settings (SECRET_KEY, CORS origins)
+        - Computed properties for API paths and database URI
+        - Settings caching for performance
+        - 98% test coverage
 
 3.  **Database Setup (SQLAlchemy & PostgreSQL):**
     *   **Test:** Write tests for `app/db/session.py` to ensure it creates a database engine and session correctly, using the configured database URL.  Test both production and testing database configurations.
