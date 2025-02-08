@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = Field(
         default="development",
         pattern="^(development|staging|production)$",
-        description="Current environment (development/staging/production)"
+        description="Current environment (development, staging, or production)"
     )
     DEBUG: bool = Field(
         default=False,
@@ -60,9 +60,9 @@ class Settings(BaseSettings):
         examples=["your-super-secret-key-here-at-least-32-chars"]
     )
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
-        default=60 * 24 * 8,  # 8 days
+        default=11520,  # 8 days (60 * 24 * 8)
         ge=1,
-        description="JWT token expiration time in minutes"
+        description="JWT token expiration time in minutes (default: 8 days)"
     )
     
     # CORS
