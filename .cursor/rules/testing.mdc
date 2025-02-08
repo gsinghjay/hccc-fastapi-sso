@@ -83,6 +83,7 @@ def test_parameterized(
 - Verify configuration validation
 - Test computed properties
 - Mock sensitive data appropriately
+- Test DEBUG flag behavior
 
 ## Best Practices
 1. Use `TestClient` from FastAPI for HTTP testing
