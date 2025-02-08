@@ -1,28 +1,25 @@
 """
 Tests for the health check endpoint.
 """
-import pytest
-from httpx import AsyncClient
+from fastapi.testclient import TestClient
 
 from app.schemas import HealthResponse, HealthStatus
 from app.core.config import get_settings
 
 settings = get_settings()
 
-@pytest.mark.anyio
-async def test_health_check(async_client: AsyncClient) -> None:
-    """
-    Test the health check endpoint returns the expected response.
-    
-    Args:
-        async_client (AsyncClient): Async client fixture for making HTTP requests
-    """
-    response = await async_client.get(f"{settings.API_V1_PATH}/health")
-    
+
+def test_read_health_check(client: TestClient) -> None:
+    """Test successful health check"""
+    response = client.get(f"{settings.API_V1_PATH}/health")
     assert response.status_code == 200
+    assert response.json() == {"status": "healthy"}
+
+
+def test_health_check_validation(client: TestClient) -> None:
+    """Test response validates against schema"""
+    response = client.get(f"{settings.API_V1_PATH}/health")
     data = response.json()
-    assert data == {"status": "healthy"}
-    
     # Validate against our Pydantic model
     health_response = HealthResponse(**data)
     assert health_response.status == HealthStatus.HEALTHY 
