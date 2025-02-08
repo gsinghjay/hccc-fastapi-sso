@@ -27,7 +27,7 @@ class Settings(BaseSettings):
         POSTGRES_PASSWORD (SecretStr): PostgreSQL password
         POSTGRES_DB (str): PostgreSQL database name
         SQLALCHEMY_DATABASE_URI (PostgresDsn): Constructed database URI
-        ENVIRONMENT (str): Current environment (development/staging/production)
+        DEBUG (bool): Enable debug mode (should be False in production)
     """
     
     # Application
@@ -43,14 +43,9 @@ class Settings(BaseSettings):
         default="v1",
         description="API version 1 path component"
     )
-    ENVIRONMENT: str = Field(
-        default="development",
-        pattern="^(development|staging|production)$",
-        description="Current environment (development, staging, or production)"
-    )
     DEBUG: bool = Field(
         default=False,
-        description="Enable debug mode"
+        description="Enable debug mode (should be False in production)"
     )
     
     # Security
@@ -193,7 +188,6 @@ class Settings(BaseSettings):
                 "PROJECT_NAME": "FastAPI User Management",
                 "API_PREFIX": "/api",
                 "API_V1_STR": "v1",
-                "ENVIRONMENT": "development",
                 "DEBUG": False,
                 "SECRET_KEY": "your-super-secret-key-here-at-least-32-chars",
                 "ACCESS_TOKEN_EXPIRE_MINUTES": 11520,

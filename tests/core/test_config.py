@@ -15,7 +15,6 @@ from app.core.config import Settings, get_settings
 def test_settings() -> Settings:
     """Fixture to provide a Settings instance for testing."""
     return Settings(
-        ENVIRONMENT="development",
         DEBUG=True,
         POSTGRES_DB="test_db",
         POSTGRES_USER="test_user",
@@ -33,7 +32,6 @@ class TestSettingsConfiguration:
         assert test_settings.PROJECT_NAME == "FastAPI User Management"
         assert test_settings.API_PREFIX == "/api"
         assert test_settings.API_V1_STR == "v1"
-        assert test_settings.ENVIRONMENT == "development"
         assert test_settings.DEBUG is True
         assert test_settings.ACCESS_TOKEN_EXPIRE_MINUTES == 11520
         assert test_settings.RATE_LIMIT_PER_MINUTE == 60
@@ -112,7 +110,6 @@ class TestSettingsConfiguration:
                     "PROJECT_NAME": "Test Project",
                     "API_PREFIX": "/test-api",
                     "API_V1_STR": "v2",
-                    "ENVIRONMENT": "production",
                     "DEBUG": "true",
                     "SECRET_KEY": "x" * 32,
                     "POSTGRES_SERVER": "testdb.example.com",
@@ -125,7 +122,6 @@ class TestSettingsConfiguration:
                     "PROJECT_NAME": "Test Project",
                     "API_PREFIX": "/test-api",
                     "API_V1_STR": "v2",
-                    "ENVIRONMENT": "production",
                     "DEBUG": True,
                     "POSTGRES_SERVER": "testdb.example.com",
                     "POSTGRES_USER": "admin",

@@ -14,7 +14,6 @@ from app.core.config import Settings, get_settings
 def get_settings_override() -> Settings:
     """Override settings for testing"""
     return Settings(
-        ENVIRONMENT="development",
         DEBUG=True,
         POSTGRES_DB="test_db",
         POSTGRES_USER="test_user",

@@ -20,8 +20,8 @@ def create_application() -> FastAPI:
         title=settings.PROJECT_NAME,
         description="HCCC Single Sign-On API Service",
         version="1.0.0",
-        docs_url=f"/docs",
-        openapi_url=f"/openapi.json",
+        docs_url="/docs",
+        openapi_url="/openapi.json",
         debug=settings.DEBUG
     )
 
