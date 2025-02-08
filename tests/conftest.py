@@ -5,7 +5,6 @@ from typing import Any, AsyncGenerator, Awaitable, Callable, cast, Coroutine
 
 import pytest
 from httpx import ASGITransport, AsyncClient
-from fastapi import FastAPI
 
 from app.main import app
 
