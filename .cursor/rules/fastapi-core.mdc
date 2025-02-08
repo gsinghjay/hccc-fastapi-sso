@@ -1,6 +1,6 @@
 ---
 description: Core FastAPI application architecture rules
-globs: app/main.py, app/core/{config,security,middleware,dependencies}.py
+globs: app/main.py, app/core/{config,security,middleware,dependencies}.py, app/core/config.py, app/core/*.py
 ---
 
 # FastAPI Core Configuration Guidelines
@@ -39,3 +39,9 @@ globs: app/main.py, app/core/{config,security,middleware,dependencies}.py
 - Handle both sync and async middleware properly
 - Configure async database connections in lifespan
 - Use proper ASGI typing for application setup
+
+## Configuration Management
+- Split API paths into prefix and version components
+- Use computed properties for path construction
+- Cache settings with maxsize=1
+- Handle environment-specific configurations

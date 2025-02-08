@@ -1,6 +1,6 @@
 ---
 description: Test suite implementation guidelines
-globs: tests/**/test_*.py
+globs: tests/**/test_*.py, tests/core/test_*.py
 ---
 
 # Testing Standards
@@ -52,3 +52,10 @@ def db_session():
 - Use `AsyncClient` instead of `TestClient` for async tests
 - Test both sync and async dependencies appropriately
 - Handle coroutines properly in mocks and stubs
+
+## Configuration Testing
+- Use `patch.dict` for environment variables
+- Test both default and custom values
+- Verify validation rules
+- Test computed properties
+- Mock sensitive data appropriately
