@@ -1,36 +1,43 @@
 """
 Test configuration and fixtures.
 """
-from typing import Any, AsyncGenerator, Awaitable, Callable, cast, Coroutine
+from typing import Generator
 
 import pytest
-from httpx import ASGITransport, AsyncClient
+from fastapi.testclient import TestClient
+from pydantic import SecretStr
 
 from app.main import app
+from app.core.config import Settings, get_settings
 
-# Type alias for ASGI application
-ASGIApp = Callable[
-    [
-        dict[str, Any],  # scope
-        Callable[[], Awaitable[dict[str, Any]]],  # receive
-        Callable[[dict[str, Any]], Coroutine[None, None, None]]  # send
-    ],
-    Coroutine[None, None, None]
-]
+
+def get_settings_override() -> Settings:
+    """Override settings for testing"""
+    return Settings(
+        ENVIRONMENT="development",
+        DEBUG=True,
+        POSTGRES_DB="test_db",
+        POSTGRES_USER="test_user",
+        POSTGRES_PASSWORD=SecretStr("test_password"),
+        SECRET_KEY=SecretStr("x" * 32)
+    )
 
 
 @pytest.fixture
-async def async_client() -> AsyncGenerator[AsyncClient, None]:
+def client() -> Generator[TestClient, None, None]:
     """
-    Async client fixture for testing FastAPI endpoints.
+    Test client fixture that can be used across all tests.
     
-    Yields:
-        AsyncClient: An async client configured to make requests to the test app
+    Returns:
+        TestClient: A test client configured to make requests to the test app
     """
-    # Cast the FastAPI app to the correct ASGI application type
-    asgi_app = cast(ASGIApp, app)
-    
-    async with AsyncClient(
-        transport=ASGITransport(app=asgi_app), base_url="http://test"
-    ) as client:
-        yield client
+    app.dependency_overrides[get_settings] = get_settings_override
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def test_settings() -> Settings:
+    """Fixture to provide test Settings instance."""
+    return get_settings_override()
