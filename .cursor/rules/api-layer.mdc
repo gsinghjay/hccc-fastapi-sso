@@ -1,0 +1,61 @@
+---
+description: API endpoint implementation rules
+globs: app/api/**/*.py
+---
+
+# API Controller Requirements
+
+## Route Definitions
+- Use `APIRouter` with prefix "/v1"
+- Annotate all endpoints with response models
+- Include error responses in OpenAPI docs:
+  ```python
+  responses={
+    400: {"model": schemas.HTTPError},
+    401: {"model": schemas.HTTPError},
+    404: {"model": schemas.HTTPError},
+    500: {"model": schemas.HTTPError}
+  }
+  ```
+- Validate all inputs with Pydantic models
+- Document endpoint security requirements
+
+## Type Annotations
+- Use Python 3.10+ type hints with | operator where possible
+- Annotate path/query parameters with proper types:
+  ```python
+  async def read_item(
+      item_id: int,
+      q: str | None = None,
+      limit: Annotated[int, Query(gt=0)] = 10
+  )
+  ```
+- Use Annotated for complex validations:
+  ```python
+  user_agent: Annotated[str | None, Header()] = None
+  token: Annotated[str, Cookie()] = None
+  ```
+
+## Response Models  
+- Declare explicit return types using Pydantic models:
+  ```python
+  @router.get("/items/{item_id}", response_model=schemas.Item)
+  async def read_item(item_id: int) -> schemas.Item:
+  ```
+- Use Union/Optional for nullable fields:
+  ```python
+  class UserResponse(BaseModel):
+      id: int
+      name: str
+      email: str | None = None
+  ```
+
+## Async Guidelines
+- Use `async def` for path operations that:
+  - Call external services with async libraries
+  - Perform async database operations
+  - Need to wait for I/O operations
+- Use regular `def` for:
+  - Database operations with synchronous libraries
+  - CPU-intensive operations
+  - Operations with no async support

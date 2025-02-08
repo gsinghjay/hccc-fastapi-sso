@@ -1,0 +1,89 @@
+---
+description: Business logic service layer rules
+globs: app/services/*.py
+---
+
+# Service Layer Standards
+
+1. **Single Responsibility Principle**
+   - One service class per domain entity
+   - Maximum 3 public methods per service
+   - Pure business logic (no DB session handling)
+
+2. **Dependency Contracts**
+   ```python
+   class UserService:
+       def __init__(self, user_repo: AbstractUserRepository):
+           self.user_repo = user_repo
+   ```
+
+3. **Error Handling**
+   - Raise domain-specific exceptions
+   - Never leak DB exceptions to API layer
+   - Include error context in exception messages
+
+## Type Contracts
+- Use Protocol classes for dependency injection:
+  ```python
+  from typing import Protocol
+  
+  class UserRepository(Protocol):
+      async def get_by_id(self, id: int) -> User | None: ...
+  ```
+- Return explicit types from service methods:
+  ```python
+  class UserService:
+      async def create_user(self, user: UserCreate) -> User:
+          ...
+      
+      async def get_users(
+          self, 
+          skip: int = 0, 
+          limit: int = 100
+      ) -> list[User]:
+          ...
+  ```
+
+## Type Validation
+- Enforce input/output contracts with Protocol:
+  ```python
+  from typing import Protocol, runtime_checkable
+
+  @runtime_checkable
+  class Searchable(Protocol):
+      def search(self, query: str) -> list[dict]:
+          ...
+  
+  class ProductService:
+      def __init__(self, search_client: Searchable):
+          self.client = search_client
+  ```
+
+## Error Typing
+- Use typed exceptions with error context:
+  ```python
+  class DomainError(Exception):
+      def __init__(self, code: int, context: dict):
+          self.code = code
+          self.context = context
+          super().__init__(f"Error {code} occurred")
+
+  class UserNotFoundError(DomainError):
+      def __init__(self, user_id: int):
+          super().__init__(404, {"user_id": user_id})
+  ```
+
+## Pydantic Validation
+- Leverage Pydantic for business rules:
+  ```python
+  from pydantic import field_validator
+
+  class OrderCreate(BaseModel):
+      items: list[OrderItem]
+      
+      @field_validator("items")
+      def validate_items(cls, v):
+          if len(v) < 1:
+              raise ValueError("At least one item required")
+          return v
+  ```

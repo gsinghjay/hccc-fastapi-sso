@@ -1,0 +1,78 @@
+---
+description: Project-wide development standards
+globs: **/*.py
+---
+
+# Global Python Development Rules
+
+1. **Type Annotations**
+   - PEP 484-compliant type hints
+   - Strict mypy configuration
+   - Annotate return types for all public methods
+
+2. **Documentation**
+   - Google-style docstrings
+   - Module-level __all__ declarations
+   - Pydantic model examples in docstrings
+
+3. **Security**
+   - SQL injection protection via SQLAlchemy
+   - Rate limiting on auth endpoints
+   - Input validation before processing
+
+## Type Annotations Additions
+- Prefer Python 3.10+ type syntax for containers:
+  ```python
+  tags: list[str] = []  # Instead of List[str]
+  image: Image | None = None  # Instead of Optional[Image]
+  ```
+- Use `Annotated` for dependency metadata:
+  ```python
+  from fastapi import Depends
+  from typing import Annotated
+  
+  def get_db() -> Session:
+      ...
+
+  async def get_item(
+      item_id: Annotated[int, Path(title="Item ID")], 
+      db: Annotated[Session, Depends(get_db)]
+  ):
+  ```
+- Document complex nested models with examples:
+  ```python
+  class Item(BaseModel):
+      name: str = Field(..., example="Foo")
+      tags: list[str] = Field(
+          default=[],
+          example=["electronic", "home"]
+      )
+  ```
+
+## Modern Type Syntax
+- Prefer Python 3.10+ union syntax: `str | None` instead of `Optional[str]`
+- Use generic collections: `list[str]` instead of `List[str]`
+- Annotate async methods with `-> Coroutine`:
+  ```python
+  async def fetch_user(user_id: int) -> Coroutine[Any, Any, User]:
+  ```
+
+## Pydantic Practices
+- All domain models must inherit from `BaseModel`
+- Use `Field` for model property constraints:
+  ```python
+  password: str = Field(..., min_length=8, max_length=100)
+  ```
+- Validate URLs with `HttpUrl` type:
+  ```python
+  from pydantic import HttpUrl
+  
+  class Profile(BaseModel):
+      website: HttpUrl
+  ```
+
+## Async Standards
+- Follow FastAPI's async/await best practices
+- Use structured concurrency with async context managers
+- Handle both sync and async code paths appropriately
+- Document async behavior in docstrings

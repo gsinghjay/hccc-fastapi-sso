@@ -1,0 +1,37 @@
+---
+description: Pydantic model conventions
+globs: app/schemas/*.py
+---
+
+# Pydantic Model Standards
+
+1. **Field Validation**
+   ```python
+   from pydantic import BaseModel, Field, EmailStr
+
+   class UserCreate(BaseModel):
+       email: EmailStr
+       password: str = Field(..., min_length=8, example="securepassword123")
+   ```
+
+2. **Nested Models**
+   ```python
+   class UserProfile(BaseModel):
+       user: schemas.UserResponse
+       preferences: list[schemas.Preference]
+       
+   class Preference(BaseModel):
+       name: str
+       value: str | bool
+   ```
+
+3. **OpenAPI Examples**
+   ```python
+   class Config:
+       json_schema_extra = {
+           "example": {
+               "email": "user@example.com",
+               "password": "strongpassword"
+           }
+       }
+   ```

@@ -1,0 +1,41 @@
+---
+description: Core FastAPI application architecture rules
+globs: app/main.py, app/core/{config,security,middleware,dependencies}.py
+---
+
+# FastAPI Core Configuration Guidelines
+
+## Application Setup
+- Use `app = FastAPI()` in app/main.py as entry point
+- Configure CORS through dependencies
+- Implement lifespan events for database connections
+- Follow 12-factor app principles for configuration
+
+## Dependency Injection
+- Centralize dependencies in app/core/dependencies.py
+- Use `Depends()` for router-level injections
+- Prefer class-based dependencies for complex setups
+- Document dependency trees in docstrings
+
+## Type Safety
+- Use strict mypy settings:
+  ```toml
+  [tool.mypy]
+  plugins = ["pydantic.mypy"]
+  strict = true
+  ```
+- Leverage FastAPI's built-in type validation:
+  ```python
+  from fastapi import FastAPI, Depends, HTTPException
+  from typing import Annotated
+  
+  async def get_current_user(
+      token: Annotated[str, Depends(oauth2_scheme)]
+  ) -> User:
+  ```
+  
+## Async Configuration
+- Use lifespan events for async startup/shutdown
+- Handle both sync and async middleware properly
+- Configure async database connections in lifespan
+- Use proper ASGI typing for application setup

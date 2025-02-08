@@ -1,0 +1,54 @@
+---
+description: Test suite implementation guidelines
+globs: tests/**/test_*.py
+---
+
+# Testing Standards
+
+## Fixture Structure
+```python
+@pytest.fixture
+def test_client():
+    yield TestClient(app)
+
+@pytest.fixture
+def db_session():
+    with SessionLocal() as session:
+        yield session
+```
+
+## Test Coverage
+- 100% route coverage
+- 90% service layer coverage
+- Mock external services
+- Test all error conditions
+- Verify OpenAPI schema compliance
+
+## Response Validation
+- Validate API responses against response models:
+  ```python
+  def test_get_user(test_client: TestClient):
+      response = test_client.get("/users/1")
+      assert response.status_code == 200
+      schemas.UserResponse(**response.json())  # Validate against model
+  ```
+
+## Parameterized Testing
+- Test edge cases with parameterized examples:
+  ```python
+  @pytest.mark.parametrize("user_id,expected", [
+      (1, 200),
+      (0, 422),
+      (999, 404)
+  ])
+  def test_get_user_statuses(test_client, user_id, expected):
+      response = test_client.get(f"/users/{user_id}")
+      assert response.status_code == expected
+  ```
+
+## Async Testing
+- Use `@pytest.mark.anyio` for async tests
+- Prefer async fixtures for FastAPI endpoints
+- Use `AsyncClient` instead of `TestClient` for async tests
+- Test both sync and async dependencies appropriately
+- Handle coroutines properly in mocks and stubs
