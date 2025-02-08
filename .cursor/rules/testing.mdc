@@ -5,57 +5,122 @@ globs: tests/**/test_*.py, tests/core/test_*.py
 
 # Testing Standards
 
-## Fixture Structure
+## Test Organization
+- Group related tests in classes using descriptive names
+- Use clear, descriptive test function names that indicate the scenario being tested
+- Follow FastAPI's naming convention: `test_read_*` for GET, `test_create_*` for POST, etc.
+- Keep test files organized parallel to the application structure
+
+## Test Client Usage
 ```python
 @pytest.fixture
-def test_client():
-    yield TestClient(app)
-
-@pytest.fixture
-def db_session():
-    with SessionLocal() as session:
-        yield session
+def client() -> Generator[TestClient, None, None]:
+    """Test client fixture with dependency overrides"""
+    app.dependency_overrides[get_settings] = get_settings_override
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
 ```
 
-## Test Coverage
+## Dependency Overrides
+- Override settings and dependencies for testing environment
+- Use fixture-based dependency injection
+- Clear overrides after tests complete
+- Provide test-specific configuration values
+
+## Test Structure
+```python
+class TestEndpoint:
+    """Group related endpoint tests together"""
+    
+    def test_read_endpoint(self, client: TestClient) -> None:
+        """Test successful endpoint read"""
+        response = client.get("/path")
+        assert response.status_code == 200
+        assert response.json() == expected_data
+
+    def test_endpoint_validation(self, client: TestClient) -> None:
+        """Test response validates against schema"""
+        response = client.get("/path")
+        data = response.json()
+        ModelName(**data)  # Validate against Pydantic model
+```
+
+## Parameterized Testing
+```python
+@pytest.mark.parametrize(
+    "input_value,expected_result",
+    [
+        ("valid_input", "expected_output"),
+        ("another_input", "another_output"),
+    ],
+)
+def test_parameterized(
+    self, 
+    input_value: str, 
+    expected_result: str,
+    client: TestClient
+) -> None:
+    """Test multiple scenarios using parameters"""
+    response = client.post("/path", json={"value": input_value})
+    assert response.json()["result"] == expected_result
+```
+
+## Response Validation
+- Always validate responses against Pydantic models
+- Test both successful and error scenarios
+- Verify correct status codes
+- Check response structure and content
+
+## Test Coverage Requirements
 - 100% route coverage
 - 90% service layer coverage
-- Mock external services
 - Test all error conditions
 - Verify OpenAPI schema compliance
 
-## Response Validation
-- Validate API responses against response models:
-  ```python
-  def test_get_user(test_client: TestClient):
-      response = test_client.get("/users/1")
-      assert response.status_code == 200
-      schemas.UserResponse(**response.json())  # Validate against model
-  ```
-
-## Parameterized Testing
-- Test edge cases with parameterized examples:
-  ```python
-  @pytest.mark.parametrize("user_id,expected", [
-      (1, 200),
-      (0, 422),
-      (999, 404)
-  ])
-  def test_get_user_statuses(test_client, user_id, expected):
-      response = test_client.get(f"/users/{user_id}")
-      assert response.status_code == expected
-  ```
-
-## Async Testing
-- Use `@pytest.mark.anyio` for async tests
-- Prefer async fixtures for FastAPI endpoints
-- Use `AsyncClient` instead of `TestClient` for async tests
-- Test both sync and async dependencies appropriately
-- Handle coroutines properly in mocks and stubs
-
 ## Configuration Testing
-- Use `patch.dict` for environment variables
-- Test both default and custom values
-- Verify validation rules
+- Test environment variable loading
+- Verify configuration validation
 - Test computed properties
 - Mock sensitive data appropriately
+
+## Best Practices
+1. Use `TestClient` from FastAPI for HTTP testing
+2. Group related tests in classes
+3. Use clear, descriptive test names
+4. Validate responses against Pydantic models
+5. Use parameterized tests for multiple scenarios
+6. Override dependencies appropriately
+7. Clean up resources after tests
+8. Follow FastAPI's naming conventions
+9. Keep tests focused and isolated
+10. Use proper type annotations
+
+## Example Test Structure
+```python
+from fastapi.testclient import TestClient
+from app.schemas import ResponseModel
+
+class TestUserEndpoints:
+    def test_read_users(self, client: TestClient) -> None:
+        response = client.get("/users")
+        assert response.status_code == 200
+        ResponseModel(**response.json())
+
+    def test_create_user(self, client: TestClient) -> None:
+        response = client.post("/users", json=user_data)
+        assert response.status_code == 201
+        ResponseModel(**response.json())
+
+    @pytest.mark.parametrize("user_id,expected_status", [
+        (1, 200),
+        (999, 404),
+    ])
+    def test_read_user(
+        self,
+        user_id: int,
+        expected_status: int,
+        client: TestClient
+    ) -> None:
+        response = client.get(f"/users/{user_id}")
+```
