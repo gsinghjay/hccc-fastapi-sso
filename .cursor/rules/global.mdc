@@ -1,6 +1,6 @@
 ---
 description: Project-wide development standards
-globs: **/*.py
+globs: **/*.py, app/core/config.py
 ---
 
 # Global Python Development Rules
@@ -19,6 +19,13 @@ globs: **/*.py
    - SQL injection protection via SQLAlchemy
    - Rate limiting on auth endpoints
    - Input validation before processing
+
+## Configuration Standards
+- Use SecretStr for sensitive data
+- Provide production-safe defaults
+- Document all configuration fields
+- Use proper type annotations
+- Default to production behavior with DEBUG=False
 
 ## Type Annotations Additions
 - Prefer Python 3.10+ type syntax for containers:
