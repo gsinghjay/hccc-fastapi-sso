@@ -1,6 +1,6 @@
 ---
 description: Test suite implementation guidelines
-globs: tests/**/test_*.py, tests/core/test_*.py
+globs: tests/**/test_*.py, tests/core/test_*.py, tests/e2e/test_*.py
 ---
 
 # Testing Standards
@@ -125,3 +125,34 @@ class TestUserEndpoints:
     ) -> None:
         response = client.get(f"/users/{user_id}")
 ```
+
+## E2E Test Organization
+- Keep e2e tests in `tests/e2e/` directory
+- Use Page Object Model pattern in `tests/e2e/pages/`
+- Mirror API structure in e2e test files
+- Use shared fixtures from parent conftest.py where appropriate
+
+## E2E Test Configuration
+- Use FastAPI CLI for development server
+- Configure browser settings in e2e/conftest.py
+- Share test settings with unit tests via parent conftest.py
+- Use session-scoped fixtures for long-lived resources
+
+## Page Object Model Standards
+- Extend BasePage for all page objects
+- Implement network request handling in base page
+- Document all page object methods
+- Keep UI interaction logic separate from test assertions
+
+## E2E Test Naming Conventions
+- Test files: `test_<feature>.py`
+- Page objects: `<Feature>Page` class names
+- Test functions: `test_<scenario>_<expected_result>`
+- Mark all e2e tests with @pytest.mark.e2e
+
+## E2E Test Best Practices
+- Run tests against FastAPI dev server
+- Clean up resources after each test
+- Use explicit waits for network requests
+- Handle both success and error scenarios
+- Document test scenarios in docstrings

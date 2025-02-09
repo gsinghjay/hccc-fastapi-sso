@@ -40,3 +40,14 @@ globs: **/__init__.py
    
    __all__ = ["health"]
    ```
+
+## E2E Test Directory Structure
+```tests/e2e/
+├── __init__.py          # Empty init
+├── conftest.py          # E2E specific fixtures
+├── pages/
+│   ├── __init__.py      # Empty init
+│   ├── base_page.py     # Base page object
+│   └── feature_page.py  # Feature-specific pages
+└── test_feature.py      # Feature tests
+```

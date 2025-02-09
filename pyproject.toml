@@ -28,6 +28,11 @@ black = "^24.1.1"
 ruff = "^0.2.1"
 mypy = "^1.8.0"
 
+
+[tool.poetry.group.e2e.dependencies]
+playwright = "^1.50.0"
+pytest-playwright = "^0.7.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
@@ -52,3 +57,7 @@ addopts = "-v --cov=app --cov-report=term-missing"
 testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
+markers = [
+    "asyncio: mark test as async",
+    "e2e: mark test as end-to-end test"
+]

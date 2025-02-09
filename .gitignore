@@ -23,3 +23,5 @@ target/
 *.bak
 alembic/versions/*.py
 .repomix-output.txt
+local-docs/
+local-research/
