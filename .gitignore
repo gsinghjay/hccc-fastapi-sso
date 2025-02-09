@@ -21,4 +21,5 @@ target/
 *.swp
 *~
 *.bak
-alembic/versions/*.py.repomix-output.txt
+alembic/versions/*.py
+.repomix-output.txt
