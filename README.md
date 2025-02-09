@@ -38,54 +38,65 @@ hccc-fastapi-sso/
 │   │   ├── v1/              # Version 1 of the API
 │   │   │   ├── __init__.py
 │   │   │   ├── auth.py      # Authentication endpoints
-│   │   │   ├── users.py     # User management endpoints
-│   │   │   └── ...          # Other API modules
+│   │   │   ├── health.py    # Health check endpoint
+│   │   │   └── users.py     # User management endpoints
+│   │   ├── router.py        # API router configuration
 │   │   └── __init__.py
 │   ├── core/                # Core application logic
-│   │   ├── config.py        # Configuration settings (from environment variables)
-│   │   ├── security.py      # Security-related functions (hashing, JWT)
+│   │   ├── config.py        # Configuration settings
+│   │   ├── security.py      # Security utilities
 │   │   ├── logging.py       # Logging configuration
-│   │   └── middleware.py    # Custom middleware
+│   │   ├── middleware.py    # Custom middleware
+│   │   └── __init__.py
 │   ├── db/                  # Database-related code
-│   │   ├── base.py          # Base class for declarative models
+│   │   ├── base.py          # Base class for models
 │   │   ├── session.py       # Database session management
 │   │   └── __init__.py
-│   ├── models/              # SQLAlchemy models (database tables)
-│   │   ├── user.py          # User model
-│   │   └── __init__.py
-│   ├── schemas/             # Pydantic models (data validation, serialization)
-│   │   ├── user.py          # User schemas (request/response models)
-│   │   ├── base.py          # Base schemas (e.g., for error responses)
-│   │   └── __init__.py
-│   ├── services/            # Business logic (optional, for more complex applications)
-│   │   ├── user.py          # User service (if needed)
-│   │   └── __init__.py
-│   ├── dependencies/        # Dependency injection components
+│   ├── dependencies/        # Dependency injection
 │   │   ├── auth.py          # Authentication dependencies
 │   │   └── __init__.py
-│   ├── main.py              # Main application entry point
-│   └── __init__.py
-├── tests/                   # Unit and integration tests
-│   ├── api/                 # Tests for API endpoints
-│   │   ├── v1/
-│   │   │   ├── test_auth.py
-│   │   │   ├── test_users.py
-│   │   │   └── __init__.py
+│   ├── models/              # SQLAlchemy models
+│   │   ├── base.py          # Base model configuration
+│   │   ├── user.py          # User model
 │   │   └── __init__.py
-│   ├── services/            # Tests for services (if applicable)
+│   ├── schemas/             # Pydantic models
+│   │   ├── base.py          # Base schemas
+│   │   ├── health.py        # Health check schemas
+│   │   ├── user.py          # User schemas
 │   │   └── __init__.py
-│   ├── conftest.py          # Pytest fixtures (e.g., database setup/teardown)
+│   ├── services/            # Business logic layer
+│   │   ├── user.py          # User service
+│   │   └── __init__.py
+│   ├── main.py              # Application entry point
 │   └── __init__.py
-├── alembic/                 # Alembic migrations
-│   ├── versions/            # Migration scripts
-│   ├── env.py               # Alembic environment configuration
-│   └── script.py.mako       # Alembic migration template
+├── local-docs/              # Local documentation (gitignored)
+├── local-research/          # Research notes (gitignored)
+├── scripts/                 # Utility scripts
+│   └── run_e2e_tests.sh     # E2E test runner
+├── tests/                   # Test suite
+│   ├── api/                 # API tests
+│   │   └── v1/              # Version 1 API tests
+│   │       └── test_health.py
+│   ├── core/                # Core module tests
+│   │   └── test_config.py
+│   ├── db/                  # Database tests
+│   ├── e2e/                 # End-to-end tests
+│   │   ├── pages/           # Page object models
+│   │   │   └── base_page.py
+│   │   ├── conftest.py      # E2E test configuration
+│   │   └── test_health.py
+│   ├── services/            # Service layer tests
+│   ├── conftest.py          # Main test configuration
+│   └── __init__.py
+├── alembic/                 # Database migrations
+│   └── env.py               # Alembic configuration
 ├── .env.example             # Example environment variables
-├── .gitignore               # Files and directories to ignore in Git
-├── docker-compose.yml       # Docker Compose configuration
+├── .gitignore               # Git ignore rules
 ├── pyproject.toml           # Poetry configuration
-├── README.md                # This file
-└── create_project.sh        # Script to create the project structure
+├── poetry.lock              # Dependency lock file
+├── README.md                # Project documentation
+├── SPEC.md                  # Technical specifications
+└── create_project.sh        # Initial project structure setup script
 ```
 
 ## Development Roadmap (TDD)
