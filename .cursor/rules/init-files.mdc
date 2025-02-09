@@ -21,7 +21,7 @@ globs: **/__init__.py
 
 3. **Documentation**
    - Include module docstrings for package-level documentation
-   - Reference FastAPI's module structure patterns([1](https://fastapi.tiangolo.com/tutorial/bigger-applications/))
+   - Reference FastAPI's module structure patterns([1](mdc:https:/fastapi.tiangolo.com/tutorial/bigger-applications))
 
 4. **Type Re-exports**
    ```python
