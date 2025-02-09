@@ -1,0 +1,15 @@
+---
+description: Configuration management guidelines
+globs: .env*, app/core/config.py
+---
+
+# Environment Variable Rules
+
+- Use Pydantic Settings management
+- Separate .env files for different environments
+- Never commit .env files to version control
+- Provide .env.example templates
+- Use meaningful prefix for project variables
+- Implement proper validation in Settings class
+- Store sensitive data only in environment variables
+- Use clear, descriptive names in UPPER_CASE

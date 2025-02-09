@@ -259,5 +259,3 @@ This roadmap outlines the steps for building the application using Test-Driven D
 *   **Email Verification:** Implement email verification for new user registrations.
 *   **Password Reset:** Add functionality for users to reset their passwords.
 *   **Admin Panel:** Create an admin interface for managing users and other resources.
-
-This README provides a solid foundation for building your FastAPI application. Remember to commit frequently, write clear and concise commit messages, and follow the TDD process diligently. Good luck!

@@ -1,0 +1,21 @@
+---
+description: Security best practices
+globs: app/core/security.py, app/api/**/*.py
+---
+# Security Implementation Rules
+
+- Implement proper JWT validation and token management using FastAPI's security utilities
+- Use OAuth2 with password flow for authentication
+- Implement proper OpenAPI security schemes
+- Use environment variables for sensitive data
+- Apply CORS restrictions appropriately
+- Hash passwords using bcrypt
+- Implement proper rate limiting
+- Log security events in JSON format
+- Use secure headers and middleware
+- Ensure HTTPS in production using Traefik and Let's Encrypt
+- Use FastAPI's security dependencies from fastapi.security module
+- Document security schemes in OpenAPI specification
+- Implement Bearer token authentication using OAuth2PasswordBearer
+- Use Pydantic models for security schemas
+- Handle authentication errors with proper status codes

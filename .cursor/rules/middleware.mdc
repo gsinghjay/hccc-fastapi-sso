@@ -1,0 +1,19 @@
+---
+description: Guidelines for implementing and managing middleware
+globs: app/core/middleware.py
+---
+
+# Middleware Rules
+
+- Implement middleware in order of execution importance
+- Use class-based middleware for complex operations
+- Use function-based middleware for simple request/response modifications
+- Keep middleware purpose-specific
+- Implement proper error handling within middleware
+- Log middleware execution time and performance metrics
+- Use type hints for request and response objects
+- Place middleware registration in main.py in correct order
+- Document middleware execution order in comments
+- Implement proper cleanup in middleware when needed
+- Use async/await for all I/O operations within middleware
+- Test both positive and negative middleware scenarios
