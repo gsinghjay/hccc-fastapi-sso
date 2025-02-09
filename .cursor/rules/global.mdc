@@ -78,6 +78,12 @@ globs: **/*.py, app/core/config.py
       website: HttpUrl
   ```
 
+## Production-First Standards
+- Default all configurations to production-safe values
+- Require explicit DEBUG=True for development features
+- Enforce rate limiting and security by default
+- No development-only configuration branches
+
 ## Async Standards
 - Follow FastAPI's async/await best practices
 - Use structured concurrency with async context managers

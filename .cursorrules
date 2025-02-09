@@ -1,112 +1,77 @@
+<cursor-tools Integration>
+# Instructions
+Use the following commands to get AI assistance:
 
-START SPECIFICATION:
-# Technical Specification
+**Web Search:**
+`cursor-tools web "<your question>"` - Get answers from the web using Perplexity AI (e.g., `cursor-tools web "latest weather in London"`)
+when using web for complex queries suggest writing the output to a file somewhere like local-research/<query summary>.md.
 
-## System Overview
-The system is a production-ready FastAPI application designed for user management with a modular and scalable architecture. The primary purpose is to handle user registration, authentication, and profile retrieval. The system utilizes PostgreSQL for data storage, SQLAlchemy for ORM, JWT tokens for authentication, and follows best practices for security, testing, and maintainability. The frontend is a vanilla JavaScript application, and the backend is designed to be expanded with additional features in the future.
+**Repository Context:**
+`cursor-tools repo "<your question>"` - Get context-aware answers about this repository using Google Gemini (e.g., `cursor-tools repo "explain authentication flow"`)
 
-### Main Components
-- **Frontend**: Vanilla JavaScript application.
-- **Backend**: FastAPI application with user management features.
-- **Database**: PostgreSQL.
-- **Authentication**: OAuth2 with JWT tokens.
-- **API Gateway**: Traefik as a reverse proxy.
-- **Containerization**: Docker Compose for deployment.
-- **Dependency Management**: Poetry.
-- **Linting and Formatting**: Ruff and Black.
-- **Type Checking**: Mypy with strict settings.
-- **Database Migrations**: Alembic.
-- **Logging**: Structured logging with Loki integration.
+**Documentation Generation:**
+`cursor-tools doc [options]` - Generate comprehensive documentation for this repository (e.g., `cursor-tools doc --output docs.md`)
+when using doc for remote repos suggest writing the output to a file somewhere like local-docs/<repo-name>.md.
 
-## Core Functionality
+**GitHub Information:**
+`cursor-tools github pr [number]` - Get the last 10 PRs, or a specific PR by number (e.g., `cursor-tools github pr 123`)
+`cursor-tools github issue [number]` - Get the last 10 issues, or a specific issue by number (e.g., `cursor-tools github issue 456`)
 
-### User Management
+**Browser Automation (Stateless):**
+`cursor-tools browser open <url> [options]` - Open a URL and capture page content, console logs, and network activity (e.g., `cursor-tools browser open "https://example.com" --html`)
+`cursor-tools browser act "<instruction>" --url=<url> [options]` - Execute actions on a webpage using natural language instructions (e.g., `cursor-tools browser act "Click Login" --url=https://example.com`)
+`cursor-tools browser observe "<instruction>" --url=<url> [options]` - Observe interactive elements on a webpage and suggest possible actions (e.g., `cursor-tools browser observe "interactive elements" --url=https://example.com`)
+`cursor-tools browser extract "<instruction>" --url=<url> [options]` - Extract data from a webpage based on natural language instructions (e.g., `cursor-tools browser extract "product names" --url=https://example.com/products`)
 
-#### User Registration
-- **Endpoint**: `POST /v1/users/`
-- **Description**: Allows new users to register by providing an email and password. The password is hashed using bcrypt before storage.
-- **File**: `app/api/v1/users/routes.py`
-- **Function**: `register_user`
-- **Critical Details**: 
-  - Validates input using Pydantic models.
-  - Hashes the password using bcrypt.
-  - Stores user data in PostgreSQL.
+**Notes on Browser Commands:**
+- All browser commands are stateless: each command starts with a fresh browser instance and closes it when done.
+- When using `--connect-to`, special URL values are supported:
+  - `current`: Use the existing page without reloading
+  - `reload-current`: Use the existing page and refresh it (useful in development)
+- Multi step workflows involving state or combining multiple actions are supported in the `act` command using the pipe (|) separator (e.g., `cursor-tools browser act "Click Login | Type 'user@example.com' into email | Click Submit" --url=https://example.com`)
+- Video recording is available for all browser commands using the `--video=<directory>` option. This will save a video of the entire browser interaction at 1280x720 resolution. The video file will be saved in the specified directory with a timestamp.
+- DO NOT ask browser act to "wait" for anything, the wait command is currently disabled in Stagehand.
 
-#### User Login
-- **Endpoint**: `POST /v1/users/login`
-- **Description**: Authenticates users by verifying their email and password. Returns a JWT token upon successful authentication.
-- **File**: `app/api/v1/users/routes.py`
-- **Function**: `login_user`
-- **Critical Details**: 
-  - Retrieves user from the database.
-  - Verifies password using bcrypt.
-  - Generates JWT token.
+**Tool Recommendations:**
+- `cursor-tools web` is best for general web information not specific to the repository.
+- `cursor-tools repo` is ideal for repository-specific questions, planning, code review and debugging.
+- `cursor-tools doc` generates documentation for local or remote repositories.
+- `cursor-tools browser` is useful for testing and debugging web apps.
 
-#### User Profile Retrieval
-- **Endpoint**: `GET /v1/users/me`
-- **Description**: Retrieves the current user's profile information.
-- **File**: `app/api/v1/users/routes.py`
-- **Function**: `get_current_user`
-- **Critical Details**: 
-  - Verifies JWT token.
-  - Retrieves user profile from the database.
+**Running Commands:**
+1. **Installed version:** Use `cursor-tools <command>` (if in PATH) or `npm exec cursor-tools "<command>"`, `yarn cursor-tools "<command>"`, `pnpm cursor-tools "<command>"`.
+2. **Without installation:** Use `npx -y cursor-tools@latest "<command>"` or `bunx -y cursor-tools@latest "<command>"`.
 
-### Authentication
+**General Command Options (Supported by all commands):**
+--model=<model name>: Specify an alternative AI model to use
+--max-tokens=<number>: Control response length
+--save-to=<file path>: Save command output to a file (in *addition* to displaying it)
+--help: View all available options (help is not fully implemented yet)
 
-#### JWT Token Generation
-- **Description**: Generates a JWT token for authenticated users.
-- **File**: `app/core/security.py`
-- **Function**: `create_access_token`
-- **Critical Details**: 
-  - Creates a JWT token with user information and an expiration time.
+**Documentation Command Options:**
+--from-github=<GitHub username>/<repository name>[@<branch>]: Generate documentation for a remote GitHub repository
 
-#### Token Verification
-- **Description**: Verifies the validity of a JWT token.
-- **File**: `app/core/security.py`
-- **Function**: `verify_token`
-- **Critical Details**: 
-  - Decodes and verifies the JWT token to ensure it is valid and has not expired.
+**GitHub Command Options:**
+--from-github=<GitHub username>/<repository name>[@<branch>]: Access PRs/issues from a specific GitHub repository
 
-### Database Operations
+**Browser Command Options (for 'open', 'act', 'observe', 'extract'):**
+--console: Capture browser console logs (enabled by default, use --no-console to disable)
+--html: Capture page HTML content
+--network: Capture network activity (enabled by default, use --no-network to disable)
+--screenshot=<file path>: Save a screenshot of the page
+--timeout=<milliseconds>: Set navigation timeout (default: 30000ms)
+--viewport=<width>x<height>: Set viewport size (e.g., 1280x720). When using --connect-to, viewport is only changed if this option is explicitly provided
+--headless: Run browser in headless mode (default: true)
+--no-headless: Show browser UI (non-headless mode) for debugging
+--connect-to=<port>: Connect to existing Chrome instance
+--wait=<duration or selector>: Wait after page load (e.g., '5s', '#element-id', 'selector:.my-class')
+--video=<directory>: Save a video recording of the browser interaction to the specified directory (1280x720 resolution). Not available when using --connect-to
 
-#### User CRUD Operations
-- **Description**: Handles create, read, update, and delete operations for user entities.
-- **File**: `app/db/crud/user.py`
-- **Functions**: `create_user`, `get_user_by_email`, `update_user`, `delete_user`
-- **Critical Details**: 
-  - Interacts with PostgreSQL to perform CRUD operations on user data.
-
-## Architecture
-
-### Data Flow
-
-1. **User Registration**
-   - **Input**: User provides email and password via `POST /v1/users/`.
-   - **Process**: 
-     - Validate input using Pydantic models.
-     - Hash the password using bcrypt.
-     - Store user data in PostgreSQL.
-   - **Output**: Return success message or error details.
-
-2. **User Login**
-   - **Input**: User provides email and password via `POST /v1/users/login`.
-   - **Process**: 
-     - Retrieve user from the database.
-     - Verify password using bcrypt.
-     - Generate JWT token.
-   - **Output**: Return JWT token or error message.
-
-3. **User Profile Retrieval**
-   - **Input**: Authorized user makes a request to `GET /v1/users/me`.
-   - **Process**: 
-     - Verify JWT token.
-     - Retrieve user profile from the database.
-   - **Output**: Return user profile data or error message.
-
-### Component Interaction
-- **FastAPI Routers**: Handle incoming requests and route them to appropriate handlers.
-- **Service Layer**: Contains business logic and interacts with the database layer.
-- **Database Layer**: Manages database operations using SQLAlchemy.
-- **Security Module**: Handles authentication and token management.
-- **Dependency Injection**: Centralizes dependencies and ensures they are injected where needed.
-END SPECIFICATION
+**Additional Notes:**
+- For detailed information, see `node_modules/cursor-tools/README.md` (if installed locally).
+- Configuration is in `cursor-tools.config.json` (or `~/.cursor-tools/config.json`).
+- API keys are loaded from `.cursor-tools.env` (or `~/.cursor-tools/.env`).
+- Browser commands require separate installation of Playwright: `npm install --save-dev playwright` or `npm install -g playwright`.
+- **Remember:** You're part of a team of superhuman expert AIs. Work together to solve complex problems.
+<!-- cursor-tools-version: 0.5.0 -->
+</cursor-tools Integration>

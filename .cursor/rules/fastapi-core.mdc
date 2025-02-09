@@ -44,4 +44,14 @@ globs: app/main.py, app/core/{config,security,middleware,dependencies}.py, app/c
 - Split API paths into prefix and version components
 - Use computed properties for path construction
 - Cache settings with maxsize=1
-- Handle environment-specific configurations
+
+## Configuration Management
+- Use single Settings class with production-ready defaults
+- Secure sensitive data with SecretStr
+- Cache settings with @lru_cache(maxsize=1)
+- Required configurations:
+  * Database connections
+  * JWT/Security settings
+  * CORS for frontend integration
+  * Rate limiting
+  * API versioning
