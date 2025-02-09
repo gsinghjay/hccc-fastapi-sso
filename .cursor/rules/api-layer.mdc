@@ -50,6 +50,13 @@ globs: app/api/**/*.py
       email: str | None = None
   ```
 
+## E2E Test Coverage Requirements
+- Each API endpoint requires corresponding e2e test
+- Test both success and error scenarios
+- Verify response schemas match OpenAPI spec
+- Test rate limiting and security features
+- Document test scenarios in page objects
+
 ## Async Guidelines
 - Use `async def` for path operations that:
   - Call external services with async libraries

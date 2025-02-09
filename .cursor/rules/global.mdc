@@ -84,6 +84,13 @@ globs: **/*.py, app/core/config.py
 - Enforce rate limiting and security by default
 - No development-only configuration branches
 
+## E2E Testing Standards
+- All new features require e2e test coverage
+- Use FastAPI CLI for development environment
+- Follow Page Object Model pattern
+- Share test configuration where appropriate
+- Document test scenarios and edge cases
+
 ## Async Standards
 - Follow FastAPI's async/await best practices
 - Use structured concurrency with async context managers
