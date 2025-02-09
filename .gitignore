@@ -25,3 +25,9 @@ alembic/versions/*.py
 .repomix-output.txt
 local-docs/
 local-research/
+docker/postgres/data/
+docker/traefik/certs/*
+!docker/traefik/certs/.gitkeep
+.env
+.env.*
+!.env.example
