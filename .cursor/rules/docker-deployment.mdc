@@ -1,0 +1,17 @@
+---
+description: Guidelines for Docker deployment configuration
+globs: Dockerfile, docker-compose.yml
+---
+
+# Docker Deployment Rules
+
+- Use exec form for CMD instructions to ensure proper signal handling
+- Implement proper WORKDIR structure
+- Copy dependency files before application code
+- Use appropriate base images for different stages
+- Configure environment variables consistently
+- Implement proper startup and shutdown handling
+- Set up proper container networking
+- Configure appropriate resource limits
+- Use Docker Compose for local development
+- Implement proper volume management

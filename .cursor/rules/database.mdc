@@ -1,0 +1,20 @@
+---
+description: Database or PostgreSQL and migration patterns
+globs: app/db/**/*.py, migrations/**/*.py, app/models/**/*.py
+---
+
+# Database Rules
+
+- Use SQLAlchemy 2.0 with async operations
+- Use async/await for all database operations
+- Implement connection pooling with async drivers
+- Handle database connection timeouts
+- Implement proper migration versioning with Alembic
+- Use UUIDs for primary keys
+- Keep models and schemas separate
+- Implement proper indexing strategies
+- Use connection pooling
+- Keep separate production and test databases
+- Implement proper backup strategies
+- Document any synchronous database operations
+- Use Pydantic for data validation

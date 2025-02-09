@@ -1,0 +1,25 @@
+---
+description: Docker, Traefik, and deployment guidelines
+globs: Dockerfile, docker-compose*.yml, .dockerignore, traefik/**/*.toml
+---
+
+# Infrastructure Rules
+
+- Use multi-stage builds to minimize image size
+- Use non-root users for running applications
+- Set specific versions for base images
+- Configure Poetry for dependency management:
+  - Disable virtualenv creation in containers
+  - Export dependencies to requirements.txt for production
+  - Use poetry.lock for deterministic builds
+- Use buildx cache mounts for faster builds
+- Include proper health checks
+- Configure SSL/TLS termination with Traefik
+- Enable automatic certificate management
+- Configure proper logging and dashboard security
+- Implement graceful shutdowns using exec form CMD
+- Use single Uvicorn process per container for Kubernetes
+- Use production-grade servers (gunicorn/uvicorn)
+- Cache dependencies properly with Docker layer optimization
+- Include proper cleanup in multi-stage builds
+- Set appropriate worker counts based on CPU cores
