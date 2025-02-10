@@ -17,11 +17,10 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-your-secure-password}
       - POSTGRES_DB=${POSTGRES_DB:-user_management}
       - POSTGRES_PORT=5432
-      - BACKEND_CORS_ORIGINS=http://localhost,https://localhost,http://localhost:8000,https://localhost:8000,http://localhost:3000,https://localhost:3000,http://pgadmin.localhost,https://pgadmin.localhost,http://traefik.localhost,https://traefik.localhost
-      - WEB_CONCURRENCY=2
-      - MAX_WORKERS=4  # Development setting
+      - BACKEND_CORS_ORIGINS=${DEV_CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
       - HOST=0.0.0.0
       - PORT=8000
+      - RATE_LIMIT_PER_MINUTE=120
     volumes:
       - ./app:/app/app
     depends_on:
@@ -32,21 +31,41 @@ services:
       - backend
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.app.rule=Host(`localhost`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.app.entrypoints=web"
+      # HTTP Router
+      - "traefik.http.routers.web-app.rule=Host(`${DEV_DOMAIN:-localhost}`)"
+      - "traefik.http.routers.web-app.entrypoints=web"
+      - "traefik.http.routers.web-app.middlewares=https-redirect"
+      # HTTPS Router
+      - "traefik.http.routers.websecure-app.rule=Host(`${DEV_DOMAIN:-localhost}`)"
+      - "traefik.http.routers.websecure-app.entrypoints=websecure"
+      - "traefik.http.routers.websecure-app.middlewares=cors-headers,secure-headers,security-headers,scheme-enforcer"
+      - "traefik.http.routers.websecure-app.tls=true"
+      # Service
       - "traefik.http.services.app.loadbalancer.server.port=8000"
-      - "traefik.http.routers.app.service=app"
-      - "traefik.http.services.app.loadbalancer.passHostHeader=true"
-      - "traefik.http.middlewares.app-stripprefix.stripprefix.prefixes=/api"
-      - "traefik.http.routers.app.middlewares=app-stripprefix"
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
+      # Middleware - HTTPS Redirect
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+      # Middleware - CORS Headers
+      - "traefik.http.middlewares.cors-headers.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH"
+      - "traefik.http.middlewares.cors-headers.headers.accesscontrolallowheaders=*"
+      - "traefik.http.middlewares.cors-headers.headers.accesscontrolalloworiginlist=*"
+      - "traefik.http.middlewares.cors-headers.headers.accesscontrolallowcredentials=true"
+      - "traefik.http.middlewares.cors-headers.headers.accesscontrolmaxage=3600"
+      - "traefik.http.middlewares.cors-headers.headers.addvaryheader=true"
+      # Middleware - Secure Headers
+      - "traefik.http.middlewares.secure-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.middlewares.secure-headers.headers.customrequestheaders.X-Forwarded-Host=localhost"
+      - "traefik.http.middlewares.secure-headers.headers.customresponseheaders.Strict-Transport-Security=max-age=31536000; includeSubDomains; preload"
+      - "traefik.http.middlewares.secure-headers.headers.customresponseheaders.X-Scheme=https"
+      - "traefik.http.middlewares.secure-headers.headers.hostsproxyheaders=X-Forwarded-Host,X-Forwarded-Proto,X-Real-IP"
+      # Middleware - Security Headers for Development
+      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.Content-Security-Policy=default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob: ws:; frame-ancestors 'self'; img-src 'self' https: http: data: blob:; font-src 'self' https: http: data:; form-action 'self'; media-src 'self' https: http: data: blob:; connect-src 'self' https: http: ws: wss:;"
+      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-Content-Type-Options=nosniff"
+      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-Frame-Options=SAMEORIGIN"
+      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-XSS-Protection=1; mode=block"
+      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.Referrer-Policy=strict-origin-when-cross-origin"
+      # Force HTTPS scheme for all requests
+      - "traefik.http.middlewares.scheme-enforcer.headers.customrequestheaders.X-Forwarded-Proto=https"
 
   db:
     image: postgres:16-alpine
@@ -65,11 +84,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    deploy:
-      resources:
-        limits:
-          cpus: '1'
-          memory: 1G
 
   test_db:
     image: postgres:16-alpine
@@ -92,59 +106,23 @@ services:
           cpus: '0.5'
           memory: 512M
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin
-    restart: unless-stopped
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@admin.com}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-admin}
-      - PGADMIN_CONFIG_SERVER_MODE=False
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - web
-      - backend
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.localhost`)"
-      - "traefik.http.routers.pgadmin.entrypoints=web"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512M
-
   traefik:
     image: traefik:v2.10
     container_name: traefik
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
     volumes:
-      - /etc/localtime:/etc/localtime:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./docker/traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - ./docker/traefik/dynamic:/etc/traefik/dynamic:ro
-      - ./docker/traefik/certs:/etc/traefik/acme
+      - ./docker/traefik/traefik.dev.yml:/etc/traefik/traefik.yml:ro
     networks:
       - web
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DEV_DOMAIN:-localhost}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.entrypoints=web"
-      - "traefik.http.middlewares.auth.basicauth.users=admin:$$apr1$$cROOv3FQ$$6JJPNjcqHP/5KxHJ9ev2S."
-      - "traefik.http.routers.dashboard.middlewares=auth"
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
 
 networks:
   web:
@@ -154,5 +132,6 @@ networks:
 
 volumes:
   postgres_data:
-  pgadmin_data:
+    driver: local
   traefik_certs: 
+    driver: local 

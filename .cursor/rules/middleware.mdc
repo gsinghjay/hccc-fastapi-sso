@@ -1,19 +1,37 @@
 ---
 description: Guidelines for implementing and managing middleware
-globs: app/core/middleware.py
+globs: app/core/middleware.py, app/middleware/*.py, app/core/security.py, tests/core/test_middleware.py
 ---
 
 # Middleware Rules
 
-- Implement middleware in order of execution importance
+- Implement middleware in strict order of execution:
+  1. RequestID (for tracing)
+  2. Timing (for metrics)
+  3. Security Headers
+  4. CORS
+  5. Rate Limiting
 - Use class-based middleware for complex operations
 - Use function-based middleware for simple request/response modifications
-- Keep middleware purpose-specific
+- Keep middleware purpose-specific and documented
 - Implement proper error handling within middleware
-- Log middleware execution time and performance metrics
-- Use type hints for request and response objects
+- Log middleware execution time and performance metrics:
+  - Use Prometheus metrics where appropriate
+  - Track request durations
+  - Monitor rate limiting events
+- Use type hints for request and response objects:
+  - Use Annotated types for dependencies
+  - Properly type all async functions
 - Place middleware registration in main.py in correct order
 - Document middleware execution order in comments
 - Implement proper cleanup in middleware when needed
 - Use async/await for all I/O operations within middleware
 - Test both positive and negative middleware scenarios
+- Implement environment-aware middleware behavior:
+  - Different security policies for dev/prod
+  - Configurable rate limits
+  - Environment-specific CORS settings
+- Add proper request tracking:
+  - Request IDs
+  - Processing time
+  - Client information

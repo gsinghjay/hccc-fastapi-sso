@@ -2,63 +2,116 @@ version: '3.8'
 
 services:
   app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fastapi_app
+    restart: unless-stopped
     environment:
+      - PROJECT_NAME=FastAPI User Management
+      - API_PREFIX=/api
+      - API_V1_STR=v1
       - DEBUG=false
-      - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS}
-      - WEB_CONCURRENCY=4
-      - MAX_WORKERS=8  # Production setting
+      - POSTGRES_SERVER=db
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-user_management}
+      - POSTGRES_PORT=5432
+      - BACKEND_CORS_ORIGINS=${ALLOWED_ORIGINS}
+      - HOST=0.0.0.0
+      - PORT=8000
+      - RATE_LIMIT_PER_MINUTE=60
     volumes:
       - app_data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - web
+      - backend
     deploy:
-      replicas: 2
-      update_config:
-        parallelism: 1
-        delay: 10s
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.app.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.app.entrypoints=websecure"
+      - "traefik.http.routers.app.tls.certresolver=letsencrypt"
+      - "traefik.http.services.app.loadbalancer.server.port=8000"
+      - "traefik.http.middlewares.app-ratelimit.ratelimit.average=100"
+      - "traefik.http.middlewares.app-ratelimit.ratelimit.burst=50"
+      - "traefik.http.routers.app.middlewares=app-ratelimit@docker,forward-auth@file"
 
   db:
-    volumes:
-      - postgres_prod_data:/var/lib/postgresql/data
-      - ./docker/postgres/init-scripts:/docker-entrypoint-initdb.d
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-
-  pgadmin:
+    image: postgres:16-alpine
+    container_name: postgres_main
+    restart: unless-stopped
     environment:
-      - PGADMIN_CONFIG_SERVER_MODE=True
-      - PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED=True
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB:-user_management}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
     deploy:
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./docker/traefik/traefik.prod.yml:/etc/traefik/traefik.yml:ro
-      - ./docker/traefik/dynamic:/etc/traefik/dynamic:ro
-      - traefik_certs:/etc/traefik/acme
+      - ./docker/traefik/dynamic/auth.prod.yml:/etc/traefik/dynamic/auth.yml:ro
+      - traefik_acme:/etc/traefik/acme
+    networks:
+      - web
+    environment:
+      - ACME_EMAIL=${ACME_EMAIL}
     deploy:
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-        window: 120s
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.middlewares=auth-dashboard@file,secure-headers@file"
+
+networks:
+  web:
+    external: true
+  backend:
+    external: false
 
 volumes:
+  postgres_data:
+    driver: local
   app_data:
-  postgres_prod_data:
-  traefik_certs: 
+    driver: local
+  traefik_acme:
+    driver: local 

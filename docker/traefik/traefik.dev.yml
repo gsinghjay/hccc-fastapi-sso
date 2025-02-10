@@ -1,0 +1,58 @@
+api:
+  dashboard: true
+  insecure: true  # Only for development
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+    http:
+      tls: {}
+  metrics:
+    address: ":8082"
+
+providers:
+  docker:
+    endpoint: "unix:///var/run/docker.sock"
+    exposedByDefault: false
+    network: web
+    watch: true
+
+log:
+  level: DEBUG  # More verbose logging for development
+  format: common
+
+accessLog:
+  format: common
+  fields:
+    defaultMode: keep
+    headers:
+      defaultMode: keep
+    names:
+      ClientAddr: keep
+      ClientHost: keep
+      ClientPort: keep
+      ClientUsername: keep
+      DownstreamStatus: keep
+      DownstreamStatusLine: keep
+      Duration: keep
+      RequestAddr: keep
+      RequestHost: keep
+      RequestMethod: keep
+      RequestPath: keep
+      RequestPort: keep
+      RequestProtocol: keep
+      RequestScheme: keep
+      RetryAttempts: keep
+      RouterName: keep
+      StartLocal: keep
+      StartUTC: keep
+      level: keep
+
+metrics:
+  prometheus:
+    entryPoint: metrics
+
+pilot:
+  dashboard: false 

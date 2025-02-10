@@ -28,6 +28,10 @@ local-research/
 docker/postgres/data/
 docker/traefik/certs/*
 !docker/traefik/certs/.gitkeep
-.env
 .env.*
 !.env.example
+.cursor-tools.env
+
+# Node.js
+node_modules/
+package-lock.json

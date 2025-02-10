@@ -1,6 +1,6 @@
 ---
 description: Core FastAPI application architecture rules
-globs: app/main.py, app/core/{config,security,middleware,dependencies}.py, app/core/config.py, app/core/*.py
+globs: app/main.py, app/core/{config,security,middleware,dependencies}.py, app/core/*.py, app/api/router.py
 ---
 
 # FastAPI Core Configuration Guidelines

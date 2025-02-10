@@ -1,0 +1,25 @@
+http:
+  middlewares:
+    auth-dashboard:
+      basicAuth:
+        users:
+          - "${TRAEFIK_DASHBOARD_USER}:${TRAEFIK_DASHBOARD_PASSWORD_HASH}"
+        removeHeader: true
+    
+    forward-auth:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+    
+    secure-headers:
+      headers:
+        browserXssFilter: true
+        contentTypeNosniff: true
+        frameDeny: true
+        sslRedirect: true
+        stsIncludeSubdomains: true
+        stsPreload: true
+        stsSeconds: 31536000
+        customFrameOptionsValue: "DENY"
+        customRequestHeaders:
+          X-Forwarded-Proto: "https" 

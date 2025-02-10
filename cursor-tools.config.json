@@ -1,0 +1,19 @@
+{
+    "browser": {
+        "headless": false,
+        "defaultViewport": {
+            "width": 1280,
+            "height": 720
+        },
+        "timeout": 30000,
+        "waitForSelector": true
+    },
+    "stagehand": {
+        "env": "LOCAL",
+        "verbose": true,
+        "debugDom": true,
+        "modelName": "claude-3-opus-20240229",
+        "provider": "anthropic",
+        "enableCaching": false
+    }
+} 
