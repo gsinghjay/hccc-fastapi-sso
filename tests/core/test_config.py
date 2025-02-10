@@ -35,7 +35,7 @@ class TestSettingsConfiguration:
         assert test_settings.DEBUG is True
         assert test_settings.ACCESS_TOKEN_EXPIRE_MINUTES == 11520
         assert test_settings.RATE_LIMIT_PER_MINUTE == 60
-        assert test_settings.POSTGRES_SERVER == "localhost"
+        assert test_settings.POSTGRES_SERVER == "db"
         assert test_settings.POSTGRES_USER == "test_user"
         assert test_settings.POSTGRES_DB == "test_db"
         assert test_settings.POSTGRES_PORT == 5432

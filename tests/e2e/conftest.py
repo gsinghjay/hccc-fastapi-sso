@@ -34,4 +34,4 @@ def api_client() -> Generator[TestClient, None, None]:
 def base_url() -> str:
     """Get the base URL for the application."""
     settings = get_settings_override()
-    return f"http://localhost{settings.API_V1_PATH}" 
+    return f"http://fastapi_app:8000{settings.API_V1_PATH}" 
