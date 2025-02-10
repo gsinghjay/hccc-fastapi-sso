@@ -1,11 +1,10 @@
 """E2E test configuration with Playwright."""
 
 import pytest
-from typing import Generator
+from typing import Generator, AsyncGenerator, Any, cast
 from playwright.sync_api import Browser, Page, Playwright
-from fastapi.testclient import TestClient
+from httpx import ASGITransport, AsyncClient
 from app.main import app
-from app.core.config import get_settings
 from tests.conftest import get_settings_override
 
 
@@ -27,12 +26,17 @@ def page(browser_context: Browser) -> Generator[Page, None, None]:
 
 
 @pytest.fixture(scope="session")
-def api_client() -> Generator[TestClient, None, None]:
-    """Create a FastAPI test client."""
-    app.dependency_overrides[get_settings] = get_settings_override
-    with TestClient(app) as client:
+async def api_client() -> AsyncGenerator[AsyncClient, None]:
+    """Create an async test client."""
+    settings = get_settings_override()
+    # Cast the FastAPI app to Any to satisfy the type checker
+    # This is safe because FastAPI implements the ASGI interface
+    asgi_app = cast(Any, app)
+    async with AsyncClient(
+        transport=ASGITransport(app=asgi_app),
+        base_url=f"http://test{settings.API_V1_PATH}",
+    ) as client:
         yield client
-    app.dependency_overrides.clear()
 
 
 @pytest.fixture(scope="session")
