@@ -1,41 +1,30 @@
 """E2E tests for the health endpoint."""
 
+from typing import cast, Any
+from httpx import AsyncClient, ASGITransport
 import pytest
-from playwright.sync_api import Page
-from typing import Dict, Any, cast
-from tests.e2e.pages.base_page import BasePage
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.main import app
+from tests.conftest import get_settings_override
+
+# Create a new settings instance for testing
+settings = get_settings_override()
 
 
-class HealthPage(BasePage):
-    """Page object for health endpoint testing."""
-
-    def get_health_status(self, base_url: str) -> Dict[str, Any]:
-        """Get the health status from the API.
-
-        Args:
-            base_url: The base URL of the API
-
-        Returns:
-            The health status response
-        """
-        health_url = f"{base_url}/health"
-        with self.page.expect_response(
-            lambda response: response.url == health_url and response.status == 200
-        ) as response_info:
-            self.navigate(health_url)
-            response = response_info.value
-            return cast(Dict[str, Any], response.json())
-
-
+@pytest.mark.asyncio
 @pytest.mark.e2e
-def test_health_endpoint(page: Page, base_url: str) -> None:
-    """Test the health endpoint returns correct status.
-
-    Args:
-        page: Playwright page fixture
-        base_url: Base URL fixture
-    """
-    health_page = HealthPage(page)
-    response = health_page.get_health_status(base_url)
-
-    assert response["status"] == "healthy"
+async def test_health_endpoint(test_db: AsyncSession) -> None:
+    """Test the health endpoint returns correct status and metrics."""
+    # Cast the FastAPI app to Any to satisfy the type checker
+    asgi_app = cast(Any, app)
+    async with AsyncClient(
+        transport=ASGITransport(app=asgi_app), base_url="http://test"
+    ) as client:
+        response = await client.get("/api/v1/health")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "healthy"
+        assert "database" in data["checks"]
+        assert data["checks"]["database"]["status"] == "pass"
+        assert data["checks"]["database"]["latency_ms"] > 0
