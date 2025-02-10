@@ -1,5 +1,5 @@
 # Stage 1: Build stage
-FROM python:3.12-slim as builder
+FROM python:3.12-slim AS builder
 
 # Install system dependencies
 RUN apt-get update \
@@ -22,7 +22,7 @@ COPY pyproject.toml poetry.lock ./
 
 # Configure Poetry
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --no-root --only main
+    && poetry install --no-interaction --no-ansi --no-root --with dev
 
 # Stage 2: Runtime stage
 FROM python:3.12-slim
@@ -40,6 +40,10 @@ RUN apt-get update \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
+# Copy Poetry from builder
+COPY --from=builder /opt/poetry /opt/poetry
+RUN ln -s /opt/poetry/bin/poetry /usr/local/bin/poetry
+
 # Copy dependencies from builder
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
@@ -47,37 +51,40 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 # Copy application code
 COPY . .
 
-# Set ownership to non-root user
-RUN chown -R appuser:appuser /app
+# Create necessary directories and set permissions
+RUN mkdir -p /app/coverage-reports/html && \
+    mkdir -p /ms-playwright && \
+    chown -R appuser:appuser /app /ms-playwright
+
+# Install Playwright browsers as root
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+RUN playwright install --with-deps chromium && \
+    chmod -R 777 /ms-playwright
 
 # Switch to non-root user
 USER appuser
 
 # Set environment variables
-ENV PYTHONPATH=/app
-ENV PYTHONUNBUFFERED=1
-
-# Configure worker settings
-# Number of workers per CPU core
-ENV WEB_CONCURRENCY=2
-# Maximum number of workers
-ENV MAX_WORKERS=8
-ENV HOST=0.0.0.0
-ENV PORT=8000
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    WEB_CONCURRENCY=2 \
+    MAX_WORKERS=8 \
+    HOST=0.0.0.0 \
+    PORT=8000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+    CMD curl -f "http://localhost:8000/api/v1/health" || exit 1
 
 # Command to run the application with Gunicorn and Uvicorn workers
-CMD gunicorn app.main:app \
-    --bind ${HOST}:${PORT} \
+CMD ["sh", "-c", "gunicorn app.main:app \
+    --bind $HOST:$PORT \
     --worker-class uvicorn.workers.UvicornWorker \
-    --workers ${MAX_WORKERS} \
+    --workers $MAX_WORKERS \
     --worker-connections 1000 \
-    --forwarded-allow-ips "*" \
-    --proxy-allow-from "*" \
+    --forwarded-allow-ips '*' \
+    --proxy-allow-from '*' \
     --log-level info \
     --error-logfile - \
     --access-logfile - \
-    --timeout 120 
+    --timeout 120"] 
