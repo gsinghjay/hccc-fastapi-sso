@@ -1,0 +1,19 @@
+{
+  "name": "hccc-fastapi-sso",
+  "version": "1.0.0",
+  "description": "This project implements a production-ready FastAPI application for HCCC (Hudson County Community College), designed for extensibility and starting with user management. It follows best practices for security, maintainability, and scalability.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@browserbasehq/stagehand": "^1.12.0"
+  }
+}
