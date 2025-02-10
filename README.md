@@ -11,7 +11,11 @@ This backend API is built using FastAPI and Python 3.12, emphasizing a modular s
 *   **FastAPI:** A modern, fast (high-performance), web framework for building APIs with Python 3.7+ based on standard Python type hints.
 *   **Python 3.12:** The latest Python version, offering improved performance and syntax.
 *   **SQLAlchemy:** A powerful and flexible SQL toolkit and Object-Relational Mapper (ORM).
-*   **PostgreSQL:** A robust, open-source relational database system.  We'll use separate databases for production and testing.
+*   **PostgreSQL:** A robust, open-source relational database system with dedicated test database support:
+    - Separate databases for development, testing, and production
+    - Automated test database setup and teardown
+    - Resource-limited test database container (0.5 CPU, 512MB RAM)
+    - Database healthchecks and proper isolation
 *   **OAuth2 with JWT Tokens:** Integrated directly into FastAPI for secure authentication and authorization.
 *   **CORS (Cross-Origin Resource Sharing):** Enabled to allow requests from different origins (e.g., your frontend).
 *   **Environment Variables:** Used for configuration, keeping sensitive data out of the codebase.
@@ -22,8 +26,14 @@ This backend API is built using FastAPI and Python 3.12, emphasizing a modular s
 *   **Asynchronous Operations:** `async` and `await` are used extensively for non-blocking I/O operations.
 *   **Gunicorn:** A production-ready WSGI HTTP Server for Python applications.
 *   **Structured Logging (Loki):** Logs are formatted for easy ingestion by Loki, including file, class, function name, and event details, output to stdout.
-*   **Test-Driven Development (TDD):** Comprehensive unit and integration tests using pytest and `httpx.AsyncClient`.
-*   **Docker Compose:** Used for containerization and orchestration of the application, database, and reverse proxy.
+*   **Test-Driven Development (TDD):** Comprehensive testing infrastructure:
+    - Unit tests with pytest
+    - Integration tests with `httpx.AsyncClient`
+    - E2E tests with Playwright
+    - Parallel test execution support
+    - Isolated test database environment
+    - Coverage reporting with proper permissions
+*   **Docker Compose:** Used for containerization and orchestration of the application, databases, and reverse proxy.
 *   **Traefik:** A modern reverse proxy and load balancer to handle routing, SSL termination, and potentially other middleware concerns.
 *   **Vanilla JavaScript Frontend:** The initial frontend will be built with vanilla JavaScript.
 
@@ -33,70 +43,80 @@ The project follows a modular structure, promoting separation of concerns and ma
 
 ```
 hccc-fastapi-sso/
+├── alembic/                 # Database migrations
+│   └── env.py               # Alembic configuration
 ├── app/                     # Main application code
 │   ├── api/                 # API endpoints
 │   │   ├── v1/              # Version 1 of the API
-│   │   │   ├── __init__.py
 │   │   │   ├── auth.py      # Authentication endpoints
 │   │   │   ├── health.py    # Health check endpoint
 │   │   │   └── users.py     # User management endpoints
-│   │   ├── router.py        # API router configuration
-│   │   └── __init__.py
+│   │   └── router.py        # API router configuration
 │   ├── core/                # Core application logic
 │   │   ├── config.py        # Configuration settings
-│   │   ├── security.py      # Security utilities
 │   │   ├── logging.py       # Logging configuration
 │   │   ├── middleware.py    # Custom middleware
-│   │   └── __init__.py
+│   │   └── security.py      # Security utilities
 │   ├── db/                  # Database-related code
 │   │   ├── base.py          # Base class for models
-│   │   ├── session.py       # Database session management
-│   │   └── __init__.py
+│   │   └── session.py       # Database session management
 │   ├── dependencies/        # Dependency injection
-│   │   ├── auth.py          # Authentication dependencies
-│   │   └── __init__.py
+│   │   └── auth.py          # Authentication dependencies
 │   ├── models/              # SQLAlchemy models
 │   │   ├── base.py          # Base model configuration
-│   │   ├── user.py          # User model
-│   │   └── __init__.py
+│   │   └── user.py          # User model
 │   ├── schemas/             # Pydantic models
 │   │   ├── base.py          # Base schemas
 │   │   ├── health.py        # Health check schemas
-│   │   ├── user.py          # User schemas
-│   │   └── __init__.py
+│   │   └── user.py          # User schemas
 │   ├── services/            # Business logic layer
-│   │   ├── user.py          # User service
-│   │   └── __init__.py
-│   ├── main.py              # Application entry point
-│   └── __init__.py
-├── local-docs/              # Local documentation (gitignored)
-├── local-research/          # Research notes (gitignored)
+│   │   ├── health.py        # Health service
+│   │   └── user.py          # User service
+│   └── main.py              # Application entry point
+├── coverage-reports/        # Test coverage reports
+├── data/                    # Application data
+│   ├── app/                 # App-specific data
+│   ├── certs/               # SSL certificates
+│   └── postgres/            # PostgreSQL data
+├── docker/                  # Docker configuration
+│   ├── postgres/            # PostgreSQL configuration
+│   │   └── init-scripts/    # DB initialization scripts
+│   └── traefik/             # Traefik configuration
+│       ├── certs/           # SSL certificates
+│       ├── dynamic/           # Dynamic configuration
+│       │   ├── auth.dev.yml   # Dev auth config
+│       │   └── auth.prod.yml  # Prod auth config
+│       ├── traefik.dev.yml    # Dev Traefik config
+│       └── traefik.prod.yml   # Prod Traefik config
+├── docs/                    # Project documentation
 ├── scripts/                 # Utility scripts
+│   ├── commands.md          # Command documentation
+│   ├── deploy.sh            # Deployment script
 │   └── run_e2e_tests.sh     # E2E test runner
 ├── tests/                   # Test suite
 │   ├── api/                 # API tests
 │   │   └── v1/              # Version 1 API tests
-│   │       └── test_health.py
+│   │       ├── conftest.py    # Test configuration
+│   │       └── test_health.py # Health endpoint tests
 │   ├── core/                # Core module tests
-│   │   └── test_config.py
+│   │   └── test_config.py   # Config tests
 │   ├── db/                  # Database tests
 │   ├── e2e/                 # End-to-end tests
-│   │   ├── pages/           # Page object models
-│   │   │   └── base_page.py
 │   │   ├── conftest.py      # E2E test configuration
-│   │   └── test_health.py
-│   ├── services/            # Service layer tests
-│   ├── conftest.py          # Main test configuration
-│   └── __init__.py
-├── alembic/                 # Database migrations
-│   └── env.py               # Alembic configuration
-├── .env.example             # Example environment variables
-├── .gitignore               # Git ignore rules
-├── pyproject.toml           # Poetry configuration
+│   │   ├── pages/             # Page object models
+│   │   │   └── base_page.py   # Base page class
+│   │   └── test_health.py     # Health E2E tests
+│   ├── services/              # Service layer tests
+│   └── conftest.py          # Main test configuration
+├── CHANGELOG.md             # Project changelog
+├── DOC.md                   # Additional documentation
+├── Dockerfile               # Docker build configuration
+├── docker-compose.yml       # Development compose config
+├── docker-compose.prod.yml  # Production compose config
 ├── poetry.lock              # Dependency lock file
-├── README.md                # Project documentation
-├── SPEC.md                  # Technical specifications
-└── create_project.sh        # Initial project structure setup script
+├── pyproject.toml           # Poetry configuration
+├── pytest.ini               # Pytest configuration
+└── README.md                # Project documentation
 ```
 
 ## Development Roadmap (TDD)
@@ -122,35 +142,43 @@ This roadmap outlines the steps for building the application using Test-Driven D
         - Settings caching for performance
         - 98% test coverage
 
-3.  **Database Setup (SQLAlchemy & PostgreSQL):** 🟡
-    *   🟡 **Test:** Write tests for `app/db/session.py` to ensure it creates a database engine and session correctly.
-    *   🔴 **Implement:** Create `app/db/session.py` to establish a SQLAlchemy engine and session (empty file).
+3.  **Database Setup (SQLAlchemy & PostgreSQL):** ✅
+    *   ✅ **Test:** Write tests for `app/db/session.py` to ensure it creates a database engine and session correctly.
+    *   ✅ **Implement:** Create `app/db/session.py` to establish a SQLAlchemy engine and session.
     *   ✅ **Test & Implement:** Base class for declarative models in `app/db/base.py`.
+    *   Key features implemented:
+        - Separate test database configuration
+        - Resource-limited test database container
+        - Database healthchecks
+        - Proper test isolation
+        - Parallel test execution support
 
-4.  **User Model (SQLAlchemy):** 🟡
-    *   🔴 **Test:** Tests for `app/models/user.py` not implemented.
-    *   🟡 **Implement:** Basic file structure created, implementation pending.
+4.  **User Model (SQLAlchemy):** ✅
+    *   ✅ **Test:** Service layer tests implemented in `tests/services/test_user.py`.
+    *   ✅ **Implement:** User model fully implemented in `app/models/user.py` with UUID primary key, email, password, and timestamps.
 
-5.  **User Schemas (Pydantic):** 🟡
+5.  **User Schemas (Pydantic):** 🔴
     *   ✅ **Test & Implement:** Base schemas in `app/schemas/base.py`.
     *   ✅ **Test & Implement:** Health check schemas in `app/schemas/health.py`.
-    *   🟡 **Test & Implement:** Basic file structure for user schemas created.
+    *   🔴 **Test & Implement:** User schemas not implemented, though referenced in code.
 
 6.  **Authentication Dependencies:** 🟡
     *   🔴 **Test:** Tests for `app/dependencies/auth.py` not implemented.
-    *   🟡 **Implement:** Basic file structure created, implementation pending.
+    *   ✅ **Implement:** Basic authentication dependencies implemented with JWT token validation.
 
-7.  **Security Utilities:** 🟡
-    *   🔴 **Test:** Tests for `app/core/security.py` not implemented.
-    *   🟡 **Implement:** Basic file structure created, implementation pending.
+7.  **Security Utilities:** ✅
+    *   ✅ **Test:** Security utility tests implemented in service layer tests.
+    *   ✅ **Implement:** Security utilities implemented with password hashing and JWT token management.
 
 8.  **API Endpoints (Authentication):** 🟡
-    *   🔴 **Test:** Authentication endpoint tests not implemented.
-    *   🟡 **Implement:** Basic file structure and routing setup created.
+    *   🔴 **Test:** API level tests not implemented.
+    *   ✅ **Implement:** Authentication endpoints fully implemented (`/login`, `/verify`).
+    *   ✅ **Service Tests:** Authentication service tests implemented.
 
 9.  **API Endpoints (User Management):** 🟡
-    *   🔴 **Test:** User management endpoint tests not implemented.
-    *   🟡 **Implement:** Basic file structure and routing setup created.
+    *   🔴 **Test:** API level tests not implemented.
+    *   ✅ **Implement:** User management endpoints implemented (`/users`, `/me`).
+    *   ✅ **Service Tests:** User service tests implemented.
 
 10. **Main Application File:** ✅
     *   ✅ **Test:** FastAPI app creation and setup tests implemented.
@@ -170,34 +198,49 @@ This roadmap outlines the steps for building the application using Test-Driven D
 
 13. **Logging:** 🟡
     *   🔴 **Test:** Logging tests not implemented.
-    *   🟡 **Implement:** Basic file structure created, implementation pending.
+    *   🟡 **Implement:** Basic logging configuration present, needs enhancement.
 
-14. **Alembic Migrations:** 🟡
+14. **Alembic Migrations:** ✅
     *   ✅ Initialize Alembic: `alembic init alembic`.
     *   ✅ Configure `alembic/env.py`.
-    *   🔴 Generate initial migration for user table.
-    *   🔴 Apply migrations.
+    *   ✅ Generate initial migration for user table.
+    *   ✅ Apply migrations.
+    *   Key features implemented:
+        - Async-compatible migration setup
+        - Proper SQLAlchemy model detection
+        - Index creation for performance
+        - Proper upgrade/downgrade paths
+        - Migration history tracking
 
-15. **Testing Setup (conftest.py):** 🟡
+15. **Testing Setup (conftest.py):** ✅
     *   ✅ Basic test configuration implemented.
     *   ✅ E2E testing framework with Playwright set up.
-    *   🟡 Some fixtures implemented (async_client).
-    *   🔴 Database session fixture not implemented.
+    *   ✅ Database fixtures implemented.
+    *   ✅ Test isolation and parallel execution configured.
+    *   Key features implemented:
+        - Separate test database support
+        - Proper test isolation
+        - Coverage reporting with permissions
+        - Browser automation with Playwright
+        - Database cleanup procedures
 
 16. **Docker Compose:** ✅
     *   ✅ Create `docker-compose.yml` with all required services.
     *   ✅ Configure Traefik for both development and production.
     *   ✅ SSL termination configuration.
+    *   ✅ Test database configuration with resource limits.
 
 17. **Run and Test:** 🟡
     *   ✅ Local development setup working.
     *   ✅ Docker Compose setup working.
-    *   🟡 Partial test coverage (config, health endpoint).
-    *   🔴 Comprehensive test suite pending.
+    *   ✅ Database testing infrastructure complete.
+    *   ✅ Service layer tests implemented.
+    *   🔴 API level tests pending.
+    *   🔴 E2E tests pending.
 
-18. **Services Layer:** 🟡
-    *   🔴 **Test:** Service layer tests not implemented.
-    *   🟡 **Implement:** Basic service layer structure created in `app/services/`.
+18. **Services Layer:** ✅
+    *   ✅ **Test:** Service layer tests fully implemented for both auth and user services.
+    *   ✅ **Implement:** Service layer fully implemented with proper error handling and business logic.
 
 ## Future Enhancements
 
@@ -207,3 +250,63 @@ This roadmap outlines the steps for building the application using Test-Driven D
 *   **Email Verification:** Implement email verification for new user registrations.
 *   **Password Reset:** Add functionality for users to reset their passwords.
 *   **Admin Panel:** Create an admin interface for managing users and other resources.
+
+## Quick Start for Development
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/hccc-fastapi-sso.git
+   cd hccc-fastapi-sso
+   ```
+
+2. Copy environment variables:
+   ```bash
+   cp .env.example .env
+   # Update the variables as needed
+   ```
+
+3. Start the services:
+   ```bash
+   docker compose up -d
+   ```
+
+4. Run the tests:
+   ```bash
+   # Run all tests
+   docker compose run --rm app poetry run pytest
+
+   # Run only database tests
+   docker compose run --rm app poetry run pytest -m "db"
+
+   # Run tests in parallel
+   docker compose run --rm app poetry run pytest -n auto
+   ```
+
+5. View the coverage report:
+   ```bash
+   # Open coverage-reports/html/index.html in your browser
+   ```
+
+## Database Testing Guide
+
+### Running Database Tests
+- Use the `db` marker to run database-specific tests:
+  ```bash
+  docker compose run --rm app poetry run pytest -m "db"
+  ```
+
+### Test Database Configuration
+- Separate test database container with resource limits
+- Automatic database cleanup between tests
+- Support for parallel test execution
+- Proper test isolation
+
+### Writing Database Tests
+```python
+@pytest.mark.db
+async def test_database_operation():
+    # Your test code here
+    pass
+```
+
+See `tests/db/` directory for examples and patterns.

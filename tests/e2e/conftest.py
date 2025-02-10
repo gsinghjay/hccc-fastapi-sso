@@ -1,11 +1,12 @@
 """E2E test configuration with Playwright."""
+
 import pytest
-from typing import Generator
+from typing import Generator, AsyncGenerator, Any, cast
 from playwright.sync_api import Browser, Page, Playwright
-from fastapi.testclient import TestClient
+from httpx import ASGITransport, AsyncClient
 from app.main import app
-from app.core.config import get_settings
 from tests.conftest import get_settings_override
+
 
 @pytest.fixture(scope="session")
 def browser_context(playwright: Playwright) -> Generator[Browser, None, None]:
@@ -13,6 +14,7 @@ def browser_context(playwright: Playwright) -> Generator[Browser, None, None]:
     browser = playwright.chromium.launch(headless=True)
     yield browser
     browser.close()
+
 
 @pytest.fixture
 def page(browser_context: Browser) -> Generator[Page, None, None]:
@@ -22,16 +24,23 @@ def page(browser_context: Browser) -> Generator[Page, None, None]:
     yield page
     context.close()
 
+
 @pytest.fixture(scope="session")
-def api_client() -> Generator[TestClient, None, None]:
-    """Create a FastAPI test client."""
-    app.dependency_overrides[get_settings] = get_settings_override
-    with TestClient(app) as client:
+async def api_client() -> AsyncGenerator[AsyncClient, None]:
+    """Create an async test client."""
+    settings = get_settings_override()
+    # Cast the FastAPI app to Any to satisfy the type checker
+    # This is safe because FastAPI implements the ASGI interface
+    asgi_app = cast(Any, app)
+    async with AsyncClient(
+        transport=ASGITransport(app=asgi_app),
+        base_url=f"http://test{settings.API_V1_PATH}",
+    ) as client:
         yield client
-    app.dependency_overrides.clear()
+
 
 @pytest.fixture(scope="session")
 def base_url() -> str:
     """Get the base URL for the application."""
     settings = get_settings_override()
-    return f"http://localhost{settings.API_V1_PATH}" 
+    return f"http://fastapi_app:8000{settings.API_V1_PATH}"

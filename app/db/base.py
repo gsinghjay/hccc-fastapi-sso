@@ -1,6 +1,7 @@
 """
 Database connection and session management.
 """
+
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
@@ -27,18 +28,19 @@ AsyncSessionLocal = async_sessionmaker(
     autoflush=False,
 )
 
+
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency for database sessions.
-    
+
     Yields:
         AsyncSession: Database session
-        
+
     Example:
         ```python
         from fastapi import Depends
         from typing import Annotated
-        
+
         async def get_user(db: Annotated[AsyncSession, Depends(get_db)]):
             ...
         ```
