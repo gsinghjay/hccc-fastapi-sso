@@ -1,7 +1,7 @@
 """
 Health check endpoints for monitoring API status.
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from app.schemas import HealthResponse, HealthStatus, HTTPError
 
 router = APIRouter(
@@ -18,9 +18,12 @@ router = APIRouter(
         500: {"model": HTTPError, "description": "Internal server error"}
     }
 )
-async def health_check() -> HealthResponse:
+async def health_check(request: Request) -> HealthResponse:
     """
     Perform a health check of the API service.
+
+    Args:
+        request (Request): The incoming request object
 
     Returns:
         HealthResponse: The current health status of the service
