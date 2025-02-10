@@ -104,17 +104,18 @@ class Settings(BaseSettings):
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
         """
         Constructs the PostgreSQL database URI from individual components.
+        Uses asyncpg driver for async SQLAlchemy operations.
 
         Returns:
             PostgresDsn: The constructed database URI
         """
         return PostgresDsn.build(
-            scheme="postgresql",
+            scheme="postgresql+asyncpg",
             username=self.POSTGRES_USER,
             password=self.POSTGRES_PASSWORD.get_secret_value(),
             host=self.POSTGRES_SERVER,
             port=self.POSTGRES_PORT,
-            path=f"/{self.POSTGRES_DB}",
+            path=self.POSTGRES_DB,  # Remove the leading slash by not using f"/{self.POSTGRES_DB}"
         )
 
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
