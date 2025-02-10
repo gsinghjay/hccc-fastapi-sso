@@ -153,30 +153,32 @@ This roadmap outlines the steps for building the application using Test-Driven D
         - Proper test isolation
         - Parallel test execution support
 
-4.  **User Model (SQLAlchemy):** 🟡
-    *   🔴 **Test:** Tests for `app/models/user.py` not implemented.
-    *   🟡 **Implement:** Basic file structure created, implementation pending.
+4.  **User Model (SQLAlchemy):** ✅
+    *   ✅ **Test:** Service layer tests implemented in `tests/services/test_user.py`.
+    *   ✅ **Implement:** User model fully implemented in `app/models/user.py` with UUID primary key, email, password, and timestamps.
 
-5.  **User Schemas (Pydantic):** 🟡
+5.  **User Schemas (Pydantic):** 🔴
     *   ✅ **Test & Implement:** Base schemas in `app/schemas/base.py`.
     *   ✅ **Test & Implement:** Health check schemas in `app/schemas/health.py`.
-    *   🟡 **Test & Implement:** Basic file structure for user schemas created.
+    *   🔴 **Test & Implement:** User schemas not implemented, though referenced in code.
 
 6.  **Authentication Dependencies:** 🟡
     *   🔴 **Test:** Tests for `app/dependencies/auth.py` not implemented.
-    *   🟡 **Implement:** Basic file structure created, implementation pending.
+    *   ✅ **Implement:** Basic authentication dependencies implemented with JWT token validation.
 
-7.  **Security Utilities:** 🟡
-    *   🔴 **Test:** Tests for `app/core/security.py` not implemented.
-    *   🟡 **Implement:** Basic file structure created, implementation pending.
+7.  **Security Utilities:** ✅
+    *   ✅ **Test:** Security utility tests implemented in service layer tests.
+    *   ✅ **Implement:** Security utilities implemented with password hashing and JWT token management.
 
 8.  **API Endpoints (Authentication):** 🟡
-    *   🔴 **Test:** Authentication endpoint tests not implemented.
-    *   🟡 **Implement:** Basic file structure and routing setup created.
+    *   🔴 **Test:** API level tests not implemented.
+    *   ✅ **Implement:** Authentication endpoints fully implemented (`/login`, `/verify`).
+    *   ✅ **Service Tests:** Authentication service tests implemented.
 
 9.  **API Endpoints (User Management):** 🟡
-    *   🔴 **Test:** User management endpoint tests not implemented.
-    *   🟡 **Implement:** Basic file structure and routing setup created.
+    *   🔴 **Test:** API level tests not implemented.
+    *   ✅ **Implement:** User management endpoints implemented (`/users`, `/me`).
+    *   ✅ **Service Tests:** User service tests implemented.
 
 10. **Main Application File:** ✅
     *   ✅ **Test:** FastAPI app creation and setup tests implemented.
@@ -196,13 +198,19 @@ This roadmap outlines the steps for building the application using Test-Driven D
 
 13. **Logging:** 🟡
     *   🔴 **Test:** Logging tests not implemented.
-    *   🟡 **Implement:** Basic file structure created, implementation pending.
+    *   🟡 **Implement:** Basic logging configuration present, needs enhancement.
 
-14. **Alembic Migrations:** 🟡
+14. **Alembic Migrations:** ✅
     *   ✅ Initialize Alembic: `alembic init alembic`.
     *   ✅ Configure `alembic/env.py`.
-    *   🔴 Generate initial migration for user table.
-    *   🔴 Apply migrations.
+    *   ✅ Generate initial migration for user table.
+    *   ✅ Apply migrations.
+    *   Key features implemented:
+        - Async-compatible migration setup
+        - Proper SQLAlchemy model detection
+        - Index creation for performance
+        - Proper upgrade/downgrade paths
+        - Migration history tracking
 
 15. **Testing Setup (conftest.py):** ✅
     *   ✅ Basic test configuration implemented.
@@ -226,12 +234,13 @@ This roadmap outlines the steps for building the application using Test-Driven D
     *   ✅ Local development setup working.
     *   ✅ Docker Compose setup working.
     *   ✅ Database testing infrastructure complete.
-    *   🟡 Partial test coverage (config, health endpoint, database).
-    *   🔴 Comprehensive test suite pending.
+    *   ✅ Service layer tests implemented.
+    *   🔴 API level tests pending.
+    *   🔴 E2E tests pending.
 
-18. **Services Layer:** 🟡
-    *   🔴 **Test:** Service layer tests not implemented.
-    *   🟡 **Implement:** Basic service layer structure created in `app/services/`.
+18. **Services Layer:** ✅
+    *   ✅ **Test:** Service layer tests fully implemented for both auth and user services.
+    *   ✅ **Implement:** Service layer fully implemented with proper error handling and business logic.
 
 ## Future Enhancements
 

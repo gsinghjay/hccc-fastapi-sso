@@ -28,7 +28,10 @@ globs: app/services/*.py
   from typing import Protocol
   
   class UserRepository(Protocol):
-      async def get_by_id(self, id: int) -> User | None: ...
+    async def get_by_id(self, user_id: UUID) -> User | None: ...
+    async def get_by_email(self, email: str) -> User | None: ...
+    async def create(self, user: User) -> User: ...
+    async def update(self, user: User) -> User: ...
   ```
 - Return explicit types from service methods:
   ```python
@@ -43,6 +46,14 @@ globs: app/services/*.py
       ) -> list[User]:
           ...
   ```
+
+## Service Initialization
+    ```python
+    class Service:
+    def __init__(self, db: AsyncSession):
+        """Initialize with database session."""
+        self.db = db
+    ```
 
 ## Type Validation
 - Enforce input/output contracts with Protocol:
@@ -63,10 +74,15 @@ globs: app/services/*.py
 - Use typed exceptions with error context:
   ```python
   class DomainError(Exception):
-      def __init__(self, code: int, context: dict):
-          self.code = code
-          self.context = context
-          super().__init__(f"Error {code} occurred")
+    def __init__(self, code: int, context: dict):
+        self.code = code
+        self.context = context
+        message = self.format_message()
+        super().__init__(message)
+
+    def format_message(self) -> str:
+        """Format error message using context."""
+        return f"Error {self.code} occurred"
 
   class UserNotFoundError(DomainError):
       def __init__(self, user_id: int):

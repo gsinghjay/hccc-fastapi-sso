@@ -46,6 +46,55 @@ class TestEndpoint:
         ModelName(**data)  # Validate against Pydantic model
 ```
 
+## Dependency Overrides
+- Override settings and dependencies for testing environment
+- Use fixture-based dependency injection
+- Clear overrides after tests complete
+- Provide test-specific configuration values
+
+## Test Database Configuration
+- Use separate test database container
+- Resource limits: 0.5 CPU, 512MB RAM
+- Proper test isolation
+- Automatic cleanup between tests
+- Support for parallel test execution
+
+## Service Test Structure
+```python
+class TestService:
+    """Group related service tests."""
+    
+    @pytest.mark.asyncio
+    async def test_operation_success(
+        self,
+        mock_db: AsyncMock,
+        test_user: User,
+    ) -> None:
+        """Test successful operation."""
+        # Arrange
+        mock_db.get_by_id.return_value = test_user
+        service = UserService(mock_db)
+
+        # Act
+        result = await service.get_user(test_user.id)
+
+        # Assert
+        assert result.id == test_user.id
+        mock_db.get_by_id.assert_called_once_with(test_user.id)
+```
+
+## Docker-specific test execution
+```bash
+# Run tests in Docker
+docker compose run --rm app poetry run pytest
+
+# Run with coverage in Docker
+docker compose run --rm app poetry run pytest --cov=app
+
+# Run in parallel with Docker
+docker compose run --rm app poetry run pytest -n auto
+```
+
 ## Parameterized Testing
 ```python
 @pytest.mark.parametrize(
@@ -125,6 +174,19 @@ class TestUserEndpoints:
     ) -> None:
         response = client.get(f"/users/{user_id}")
 ```
+
+## Docker-specific test execution
+
+   ```md
+   # Run tests in Docker
+   docker compose run --rm app poetry run pytest
+
+   # Run with coverage in Docker
+   docker compose run --rm app poetry run pytest --cov=app
+
+   # Run in parallel with Docker
+   docker compose run --rm app poetry run pytest -n auto
+   ```
 
 ## E2E Test Organization
 - Keep e2e tests in `tests/e2e/` directory
