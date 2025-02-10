@@ -1,15 +1,31 @@
 ---
 description: Configuration management guidelines
-globs: .env*, app/core/config.py
+globs: app/core/config.py, .env*, docker/**/*.env, tests/core/test_config.py
 ---
 
 # Environment Variable Rules
 
-- Use Pydantic Settings management
-- Separate .env files for different environments
+- Use Pydantic Settings management with strict validation
+- Separate .env files for different environments:
+  - .env.example for documentation
+  - .env.development for local development
+  - .env.production for production settings
 - Never commit .env files to version control
-- Provide .env.example templates
+- Provide comprehensive .env.example templates
 - Use meaningful prefix for project variables
-- Implement proper validation in Settings class
+- Implement proper validation in Settings class:
+  - Use appropriate Pydantic types
+  - Add proper descriptions
+  - Include examples
+  - Implement custom validators
 - Store sensitive data only in environment variables
 - Use clear, descriptive names in UPPER_CASE
+- Group related variables with comments
+- Include validation hints in examples
+- Document required vs optional variables
+- Use appropriate Pydantic types:
+  - SecretStr for sensitive data
+  - HttpUrl for URLs
+  - EmailStr for emails
+- Implement proper default values
+- Add proper error messages for validation
