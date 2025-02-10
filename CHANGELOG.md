@@ -1,6 +1,136 @@
 # CHANGELOG
 
 
+## v1.2.0 (2025-02-10)
+
+### Bug Fixes
+
+- **docker**: Improve container networking and volume configuration
+  ([`2267464`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/22674649c89e1fff4879ee2e27cfd38a8645e2c7))
+
+- Remove conflicting network_mode directive - Configure proper volume mounts for coverage reports -
+  Set up proper container dependencies and healthchecks
+
+- **test**: Update e2e test configuration and improve test coverage
+  ([`d6e323b`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/d6e323b27c509b2cd5e53a1f071e97eadb8c0ba0))
+
+- Fix e2e test base URL configuration - Update test settings configuration - Add comprehensive
+  configuration tests
+
+### Chores
+
+- Update project dependencies and configuration
+  ([`8be50aa`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/8be50aae22304a91f7de5fccb49b397edc2bb900))
+
+- Updated project structure and added "tree --gitignore" to docs
+  ([`3a1a2fc`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/3a1a2fc563bc0da316ca08c18572a1db0086b59c))
+
+- **config**: Update environment variable templates
+  ([`f423648`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/f423648e6e4ac6f5efa1434b961a24f3c62f8c28))
+
+- Add test-specific environment variables - Document configuration options - Update default values
+  for development
+
+- **deps**: Update project dependencies
+  ([`b57fffe`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/b57fffe6c81fbed50906f4dd5a92d3a73bd1f2a2))
+
+- Add Playwright and pytest-playwright for e2e testing - Update FastAPI and related dependencies -
+  Add test-specific dependency groups
+
+### Code Style
+
+- Apply black formatting to codebase
+  ([`b80a88c`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/b80a88c309b6b1567c35e47469300c2926cf83cd))
+
+- Format Python files according to Black style - 18 files reformatted for consistent code style -
+  Maintain 88 character line length
+
+- **black**: Add black configuration
+  ([`23f02b7`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/23f02b78ea6fbbdb2e3ea68b820c047fd3bb85e0))
+
+- Add Black configuration to pyproject.toml - Set line length to 88 - Configure Python 3.12 as
+  target version - Add docs directory to exclude patterns
+
+### Documentation
+
+- Update documentation with latest architecture changes
+  ([`77085dc`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/77085dc1893ce93393ecc35d56f422f0e3b99ea7))
+
+- **readme**: Update project progress and database testing infrastructure
+  ([`f2df40d`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/f2df40d7b5bfbda09db44fc65623a94cd2707742))
+
+- Add database testing infrastructure details - Update development roadmap progress - Add
+  comprehensive testing documentation - Include quick start guide and database testing guide
+
+- **scripts**: Add comprehensive commands reference
+  ([`f1a292d`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/f1a292d97a9c594acf8afb29ff89bcfa95bc86b8))
+
+- Add development setup commands - Add testing and database operations - Add code quality and
+  dependency management commands - Add Docker operations and health checks - Add production
+  deployment commands - Add Ansible variables example - Add common issues and solutions - Prepare
+  for future automation with Ansible
+
+### Features
+
+- **api**: Update endpoints to use repository pattern
+  ([`02375d5`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/02375d52e140f3ae8926cbbb33246073cdac9a53))
+
+- **auth**: Add authentication service with JWT token support
+  ([`65e6d4b`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/65e6d4bdba993e63e47e591c0e24d82adb726c14))
+
+- **config**: Implement test database settings and validation
+  ([`9e71844`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/9e71844c0d3ba9096cb193cb68b0ec5c206eb088))
+
+- Add test database configuration settings - Implement database URI validation - Add rate limit
+  validation - Add comprehensive configuration tests - Fix database path construction
+
+- **health**: Add comprehensive health check system
+  ([`fd032c4`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/fd032c478cc37fe86f39b251fcf3409321f1aa98))
+
+- Add health check service layer - Implement health status schema - Add database health monitoring -
+  Add end-to-end health check tests - Improve test coverage
+
+- **infra**: Add playwright browser installation and test dependencies
+  ([`6986153`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/6986153873dc81e4460230bafcb39d2b36741cfd))
+
+- Add Playwright browser installation in Dockerfile - Configure proper permissions for test
+  directories - Set up environment variables for testing
+
+- **infra**: Add test database configuration and dependencies
+  ([`0781403`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/0781403c97c3fbb5023f3faf2780ecd20a463b86))
+
+- Add test database service in docker-compose.yml - Configure test database environment variables -
+  Update poetry dependencies for testing - Configure pytest for parallel execution
+
+- **schema**: Implement comprehensive user schemas with validation
+  ([`f7e1ad7`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/f7e1ad73587f910cf5d989959c9d0db06bece4da))
+
+- **security**: Implement password hashing and JWT token management
+  ([`56530aa`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/56530aa52ca51b82130ab1b2548835269237e0c4))
+
+- **test**: Add pytest configuration file
+  ([`68ad0db`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/68ad0db2871601eb09b30c84025924c59fc06baa))
+
+- Add test categories and markers - Configure coverage reporting - Set default test environment
+  variables
+
+- **test**: Enhance test infrastructure with fixtures
+  ([`0e72521`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/0e725215807d2fdc176a74e5c10a924d6bdc0355))
+
+- Add database test fixtures - Implement test database isolation - Add API test utilities -
+  Configure end-to-end test environment - Add test cleanup procedures
+
+### Refactoring
+
+- **user**: Implement repository pattern for user management
+  ([`b183e22`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/b183e22fc7200f40b19858962fa99e28703afff0))
+
+### Testing
+
+- Add comprehensive test suite for services and schemas
+  ([`bbb7e69`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/bbb7e69ef399dd5898140eac8dbbe0ca74014701))
+
+
 ## v1.1.0 (2025-02-10)
 
 ### Chores
