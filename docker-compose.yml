@@ -8,23 +8,41 @@ services:
     container_name: fastapi_app
     restart: unless-stopped
     environment:
-      - PROJECT_NAME=FastAPI User Management
-      - API_PREFIX=/api
-      - API_V1_STR=v1
-      - DEBUG=true
-      - POSTGRES_SERVER=db
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-your-secure-password}
-      - POSTGRES_DB=${POSTGRES_DB:-user_management}
-      - POSTGRES_PORT=5432
-      - BACKEND_CORS_ORIGINS=${DEV_CORS_ORIGINS:-http://localhost:3000,http://localhost:8000}
-      - HOST=0.0.0.0
-      - PORT=8000
-      - RATE_LIMIT_PER_MINUTE=120
+      - PROJECT_NAME=${PROJECT_NAME}
+      - API_PREFIX=${API_PREFIX}
+      - API_V1_STR=${API_V1_STR}
+      - DEBUG=${DEBUG}
+      # Database settings
+      - POSTGRES_SERVER=${POSTGRES_SERVER}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      # Application settings
+      - BACKEND_CORS_ORIGINS=${DEV_CORS_ORIGINS}
+      - HOST=${HOST}
+      - PORT=${PORT}
+      - RATE_LIMIT_PER_MINUTE=${RATE_LIMIT_PER_MINUTE}
+      # Worker settings
+      - WEB_CONCURRENCY=${WEB_CONCURRENCY}
+      - MAX_WORKERS=${MAX_WORKERS}
+      # Test-specific environment variables
+      - TEST_POSTGRES_SERVER=${TEST_POSTGRES_SERVER}
+      - TEST_POSTGRES_USER=${TEST_POSTGRES_USER}
+      - TEST_POSTGRES_PASSWORD=${TEST_POSTGRES_PASSWORD}
+      - TEST_POSTGRES_DB=${TEST_POSTGRES_DB}
+      - TEST_POSTGRES_PORT=${TEST_POSTGRES_PORT}
+      - TEST_DEBUG=${TEST_DEBUG}
+      - PYTEST_ADDOPTS=${PYTEST_ADDOPTS}
     volumes:
       - ./app:/app/app
+      - ./tests:/app/tests
+      - ./pytest.ini:/app/pytest.ini
+      - coverage-reports:/app/coverage-reports
     depends_on:
       db:
+        condition: service_healthy
+      test_db:
         condition: service_healthy
     networks:
       - web
@@ -90,13 +108,13 @@ services:
     container_name: postgres_test
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-your-secure-password}
-      - POSTGRES_DB=test_${POSTGRES_DB:-user_management}
+      - POSTGRES_USER=${TEST_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${TEST_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${TEST_POSTGRES_DB}
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${TEST_POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -133,5 +151,7 @@ networks:
 volumes:
   postgres_data:
     driver: local
-  traefik_certs: 
+  traefik_certs:
+    driver: local
+  coverage-reports:
     driver: local 
