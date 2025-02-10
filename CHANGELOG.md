@@ -1,6 +1,140 @@
 # CHANGELOG
 
 
+## v1.1.0 (2025-02-10)
+
+### Chores
+
+- **config**: Update environment configuration template
+  ([`9b2bf21`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/9b2bf216b145cc584e9deaad6df69f8cd175ed12))
+
+- Add comprehensive environment variable structure - Separate settings by category (App, DB,
+  Security, etc.) - Add development-specific settings section - Update security and monitoring
+  configurations
+
+- **deps**: Add Node.js package configuration
+  ([`0a3658e`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/0a3658e5df375b094b78b411a8eeb91023f2db85))
+
+- Add cursor-tools dependencies - Configure development scripts - Set up Playwright for testing
+
+- **git**: Update gitignore patterns
+  ([`51eb9bf`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/51eb9bf5d6201c745964ccdb6c39072e83d45634))
+
+- Add Node.js related ignores - Add cursor-tools environment file - Update environment file patterns
+  - Organize ignore patterns by category
+
+- **tools**: Add cursor-tools configuration
+  ([`1287e6f`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/1287e6fbeec75a6b77a3d4a3da9650e2c3673386))
+
+- Add initial cursor-tools setup - Configure AI assistance integration - Set up development tooling
+
+### Documentation
+
+- **readme**: Update implementation status indicators
+  ([`8e65b78`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/8e65b78d3f664c163376fbd6acb284c984386d32))
+
+- Add status indicators (✅ Complete, 🟡 Partial, 🔴 Not Started) - Mark components with basic file
+  structure as partially complete - Add Services Layer section to roadmap - Update implementation
+  details for completed components - Clarify partial implementation status for components with basic
+  structure - Remove placeholder code snippets for unimplemented features
+
+Components marked as partial: - Database setup (session.py pending) - User model & schemas
+  (structure only) - Auth dependencies & security utils - API endpoints structure - Logging
+  configuration - Testing infrastructure
+
+- **rules**: Enhance FastAPI core configuration rules
+  ([`c88ba12`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/c88ba120dcf1656eb73eb5f0c6e9031ac37a8da1))
+
+- Add async configuration guidelines - Update middleware configuration rules - Add type safety
+  requirements - Update configuration management section
+
+- **rules**: Enhance middleware implementation rules
+  ([`b180b89`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/b180b89e31d882178b89b314bfff3797d7ea035d))
+
+- Add strict middleware execution order - Update type hints requirements - Add performance
+  monitoring guidelines - Add environment-aware behavior rules
+
+- **rules**: Update environment variables guidelines
+  ([`b93b40b`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/b93b40bbc15133ccec45e2badc002bd814d981d6))
+
+- Add validation hints in examples - Add proper error messages for validation - Update configuration
+  management guidelines - Add SecretStr and type validation rules
+
+- **rules**: Update infrastructure deployment rules
+  ([`7346259`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/7346259e7bd27935d1ae0b54d2e24e1283fb4981))
+
+- Add Traefik configuration guidelines - Update Docker deployment standards - Add SSL/TLS
+  configuration rules - Add proper network segmentation rules
+
+- **rules**: Update security implementation rules
+  ([`f1ee607`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/f1ee6077a66d906a6aaf6e6584456b4a5b389dd3))
+
+- Add HTTPS and SSL configuration rules - Update CORS security guidelines - Add proper scheme
+  handling rules - Enhance security headers configuration
+
+### Features
+
+- **api**: Enhance health check endpoint
+  ([`bdd92f2`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/bdd92f2f10684c7233c74fded11aa768637d8cfe))
+
+- Add request context to health check endpoint - Improve function documentation - Add request
+  parameter for better debugging capabilities
+
+- **ci**: Add deployment script
+  ([`59b1fdc`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/59b1fdc606836752b4e22bf9e8a214fc2ec37f6b))
+
+- Add production deployment automation - Configure environment setup - Add deployment safety checks
+  - Include rollback capabilities
+
+- **core**: Enhance FastAPI application configuration
+  ([`757aa0a`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/757aa0acca202c247f9340b4edad89ec0e7c4494))
+
+- Add HTTPS scheme handling middleware - Configure Swagger UI with improved parameters - Set up
+  HTTPS-first server configuration - Add comprehensive API documentation settings
+
+- **deploy**: Update development Docker configuration
+  ([`89fed0c`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/89fed0cb6c9f3ab2085cf961f3c45f05c406155f))
+
+- Add Traefik reverse proxy setup - Configure SSL termination - Set up CORS and security headers -
+  Add development-specific settings - Configure proper container dependencies
+
+- **deploy**: Update production Docker configuration
+  ([`b1629c4`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/b1629c408521e3bcf8d7f184104c0614819ef4a5))
+
+- Add resource limits and reservations - Configure Traefik integration with SSL - Set up proper
+  container networking - Add health checks for database - Configure production-grade security
+  settings
+
+- **infra**: Implement Traefik configuration
+  ([`22e0f8f`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/22e0f8f7c11ed72df8e643f2dcdf819ad5555c57))
+
+- Add separate dev/prod Traefik configurations - Set up authentication for Traefik dashboard -
+  Configure SSL/TLS with Let's Encrypt - Add security headers and CORS middleware
+
+- **security**: Implement comprehensive middleware stack
+  ([`6372989`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/63729898b9231722bcd22f63a55b75ff6e15feb3))
+
+- Add RateLimitMiddleware with token bucket algorithm - Implement HTTPSRedirectMiddleware for secure
+  connections - Add RequestID and Timing middleware for request tracking - Add
+  SecurityHeadersMiddleware with CSP and HSTS - Configure environment-aware CORS settings
+
+### Refactoring
+
+- **infra**: Reorganize Traefik configuration
+  ([`1f4aeb1`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/1f4aeb1a459f42804687a47653995bfd2a1672f6))
+
+- Remove deprecated Traefik configuration - Move security headers to middleware stack - Consolidate
+  configuration into dev/prod files
+
+### Testing
+
+- **e2e**: Update base URL configuration
+  ([`f00b314`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/f00b314bd87a99dfcd2c19ff519f87be7c6eb112))
+
+- Remove port from base URL - Update test configuration for Traefik setup - Align with new
+  infrastructure configuration
+
+
 ## v1.0.0 (2025-02-09)
 
 ### Bug Fixes
