@@ -4,8 +4,7 @@ This document contains commonly used commands for the HCCC FastAPI SSO project. 
 
 ## Development Setup
 
-### Initialize Project
-```bash
+### Initialize Project```bash
 # Create required networks
 docker network create web
 docker network create backend
@@ -74,6 +73,17 @@ docker compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} < backup.sq
 ```
 
 ## Code Quality
+
+### Project Structure
+```bash
+# Show project structure (respecting .gitignore)
+tree --gitignore
+
+# Show project structure with additional details
+tree --gitignore -a -I '.git'  # Show hidden files except .git
+tree --gitignore -L 2          # Limit to 2 levels deep
+tree --gitignore -P '*.py'     # Show only Python files
+```
 
 ### Linting and Formatting
 ```bash

@@ -43,70 +43,80 @@ The project follows a modular structure, promoting separation of concerns and ma
 
 ```
 hccc-fastapi-sso/
+├── alembic/                 # Database migrations
+│   └── env.py               # Alembic configuration
 ├── app/                     # Main application code
 │   ├── api/                 # API endpoints
 │   │   ├── v1/              # Version 1 of the API
-│   │   │   ├── __init__.py
 │   │   │   ├── auth.py      # Authentication endpoints
 │   │   │   ├── health.py    # Health check endpoint
 │   │   │   └── users.py     # User management endpoints
-│   │   ├── router.py        # API router configuration
-│   │   └── __init__.py
+│   │   └── router.py        # API router configuration
 │   ├── core/                # Core application logic
 │   │   ├── config.py        # Configuration settings
-│   │   ├── security.py      # Security utilities
 │   │   ├── logging.py       # Logging configuration
 │   │   ├── middleware.py    # Custom middleware
-│   │   └── __init__.py
+│   │   └── security.py      # Security utilities
 │   ├── db/                  # Database-related code
 │   │   ├── base.py          # Base class for models
-│   │   ├── session.py       # Database session management
-│   │   └── __init__.py
+│   │   └── session.py       # Database session management
 │   ├── dependencies/        # Dependency injection
-│   │   ├── auth.py          # Authentication dependencies
-│   │   └── __init__.py
+│   │   └── auth.py          # Authentication dependencies
 │   ├── models/              # SQLAlchemy models
 │   │   ├── base.py          # Base model configuration
-│   │   ├── user.py          # User model
-│   │   └── __init__.py
+│   │   └── user.py          # User model
 │   ├── schemas/             # Pydantic models
 │   │   ├── base.py          # Base schemas
 │   │   ├── health.py        # Health check schemas
-│   │   ├── user.py          # User schemas
-│   │   └── __init__.py
+│   │   └── user.py          # User schemas
 │   ├── services/            # Business logic layer
-│   │   ├── user.py          # User service
-│   │   └── __init__.py
-│   ├── main.py              # Application entry point
-│   └── __init__.py
-├── local-docs/              # Local documentation (gitignored)
-├── local-research/          # Research notes (gitignored)
+│   │   ├── health.py        # Health service
+│   │   └── user.py          # User service
+│   └── main.py              # Application entry point
+├── coverage-reports/        # Test coverage reports
+├── data/                    # Application data
+│   ├── app/                 # App-specific data
+│   ├── certs/               # SSL certificates
+│   └── postgres/            # PostgreSQL data
+├── docker/                  # Docker configuration
+│   ├── postgres/            # PostgreSQL configuration
+│   │   └── init-scripts/    # DB initialization scripts
+│   └── traefik/             # Traefik configuration
+│       ├── certs/           # SSL certificates
+│       ├── dynamic/           # Dynamic configuration
+│       │   ├── auth.dev.yml   # Dev auth config
+│       │   └── auth.prod.yml  # Prod auth config
+│       ├── traefik.dev.yml    # Dev Traefik config
+│       └── traefik.prod.yml   # Prod Traefik config
+├── docs/                    # Project documentation
 ├── scripts/                 # Utility scripts
+│   ├── commands.md          # Command documentation
+│   ├── deploy.sh            # Deployment script
 │   └── run_e2e_tests.sh     # E2E test runner
 ├── tests/                   # Test suite
 │   ├── api/                 # API tests
 │   │   └── v1/              # Version 1 API tests
-│   │       └── test_health.py
+│   │       ├── conftest.py    # Test configuration
+│   │       └── test_health.py # Health endpoint tests
 │   ├── core/                # Core module tests
-│   │   └── test_config.py
+│   │   └── test_config.py   # Config tests
 │   ├── db/                  # Database tests
 │   ├── e2e/                 # End-to-end tests
-│   │   ├── pages/           # Page object models
-│   │   │   └── base_page.py
 │   │   ├── conftest.py      # E2E test configuration
-│   │   └── test_health.py
-│   ├── services/            # Service layer tests
-│   ├── conftest.py          # Main test configuration
-│   └── __init__.py
-├── alembic/                 # Database migrations
-│   └── env.py               # Alembic configuration
-├── .env.example             # Example environment variables
-├── .gitignore               # Git ignore rules
-├── pyproject.toml           # Poetry configuration
+│   │   ├── pages/             # Page object models
+│   │   │   └── base_page.py   # Base page class
+│   │   └── test_health.py     # Health E2E tests
+│   ├── services/              # Service layer tests
+│   └── conftest.py          # Main test configuration
+├── CHANGELOG.md             # Project changelog
+├── DOC.md                   # Additional documentation
+├── Dockerfile               # Docker build configuration
+├── docker-compose.yml       # Development compose config
+├── docker-compose.prod.yml  # Production compose config
 ├── poetry.lock              # Dependency lock file
-├── README.md                # Project documentation
-├── SPEC.md                  # Technical specifications
-└── create_project.sh        # Initial project structure setup script
+├── pyproject.toml           # Poetry configuration
+├── pytest.ini               # Pytest configuration
+└── README.md                # Project documentation
 ```
 
 ## Development Roadmap (TDD)
