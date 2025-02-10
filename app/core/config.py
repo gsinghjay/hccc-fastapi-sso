@@ -11,10 +11,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     """
     Application settings management using pydantic v2.
-    
+
     Environment variables take precedence over values defined in .env file.
     All sensitive values are handled as SecretStr for security.
-    
+
     Attributes:
         PROJECT_NAME (str): Name of the project
         API_PREFIX (str): Global API prefix (e.g., /api)
@@ -29,92 +29,82 @@ class Settings(BaseSettings):
         SQLALCHEMY_DATABASE_URI (PostgresDsn): Constructed database URI
         DEBUG (bool): Enable debug mode (should be False in production)
     """
-    
+
     # Application
     PROJECT_NAME: str = Field(
-        default="FastAPI User Management",
-        description="Name of the project"
+        default="FastAPI User Management", description="Name of the project"
     )
-    API_PREFIX: str = Field(
-        default="/api",
-        description="Global API prefix"
-    )
-    API_V1_STR: str = Field(
-        default="v1",
-        description="API version 1 path component"
-    )
+    API_PREFIX: str = Field(default="/api", description="Global API prefix")
+    API_V1_STR: str = Field(default="v1", description="API version 1 path component")
     DEBUG: bool = Field(
-        default=False,
-        description="Enable debug mode (should be False in production)"
+        default=False, description="Enable debug mode (should be False in production)"
     )
-    
+
     # Security
     SECRET_KEY: SecretStr = Field(
-        default_factory=lambda: SecretStr("your-super-secret-key-here-at-least-32-chars"),
+        default_factory=lambda: SecretStr(
+            "your-super-secret-key-here-at-least-32-chars"
+        ),
         description="Secret key for JWT token generation (min 32 characters)",
-        examples=["your-super-secret-key-here-at-least-32-chars"]
+        examples=["your-super-secret-key-here-at-least-32-chars"],
     )
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(
         default=11520,  # 8 days (60 * 24 * 8)
         ge=1,
-        description="JWT token expiration time in minutes (default: 8 days)"
+        description="JWT token expiration time in minutes (default: 8 days)",
     )
-    
+
     # CORS
     BACKEND_CORS_ORIGINS: str | list[str] = Field(
         default=["http://localhost:8000", "http://localhost:3000"],
         description="List of origins that can access the API. Can be a comma-separated string or a list.",
-        examples=[["http://localhost:8000", "http://localhost:3000"], "http://localhost:8000,http://localhost:3000"]
+        examples=[
+            ["http://localhost:8000", "http://localhost:3000"],
+            "http://localhost:8000,http://localhost:3000",
+        ],
     )
-    
+
     # Rate Limiting
     RATE_LIMIT_PER_MINUTE: int = Field(
-        default=60,
-        ge=1,
-        description="Number of requests allowed per minute per client"
+        default=60, ge=1, description="Number of requests allowed per minute per client"
     )
-    
+
     # PostgreSQL
     POSTGRES_SERVER: str = Field(
         default="localhost",
         description="PostgreSQL server hostname",
-        examples=["localhost"]
+        examples=["localhost"],
     )
     POSTGRES_USER: str = Field(
-        default="postgres",
-        description="PostgreSQL username",
-        examples=["postgres"]
+        default="postgres", description="PostgreSQL username", examples=["postgres"]
     )
     POSTGRES_PASSWORD: SecretStr = Field(
         default_factory=lambda: SecretStr("your-secure-password"),
         description="PostgreSQL password",
-        examples=["your-secure-password"]
+        examples=["your-secure-password"],
     )
     POSTGRES_DB: str = Field(
         default="user_management",
         description="PostgreSQL database name",
-        examples=["user_management"]
+        examples=["user_management"],
     )
-    POSTGRES_PORT: int = Field(
-        default=5432,
-        description="PostgreSQL port"
-    )
-    
+    POSTGRES_PORT: int = Field(default=5432, description="PostgreSQL port")
+
     @property
     def API_V1_PATH(self) -> str:
         """
         Constructs the full API v1 path prefix.
-        
+
         Returns:
             str: The complete path prefix for API v1 endpoints (e.g., /api/v1)
         """
         return f"{self.API_PREFIX}/{self.API_V1_STR}"
-    
+
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
         """
         Constructs the PostgreSQL database URI from individual components.
-        
+
         Returns:
             PostgresDsn: The constructed database URI
         """
@@ -126,19 +116,19 @@ class Settings(BaseSettings):
             port=self.POSTGRES_PORT,
             path=f"/{self.POSTGRES_DB}",
         )
-    
+
     @field_validator("BACKEND_CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: str | list[str]) -> list[str]:
         """
         Validates and processes CORS origins configuration.
-        
+
         Args:
             v: String or list of strings representing allowed origins
-            
+
         Returns:
             list[str]: List of processed CORS origins
-            
+
         Raises:
             ValueError: If the origin URL is invalid
         """
@@ -151,20 +141,22 @@ class Settings(BaseSettings):
             if not all(isinstance(x, str) for x in v):
                 raise ValueError("All CORS origins must be strings")
             return list(v)
-        raise ValueError("BACKEND_CORS_ORIGINS should be a comma separated string or a list of strings")
-    
+        raise ValueError(
+            "BACKEND_CORS_ORIGINS should be a comma separated string or a list of strings"
+        )
+
     @field_validator("SECRET_KEY", mode="before")
     @classmethod
     def validate_secret_key(cls, v: str | SecretStr) -> str | SecretStr:
         """
         Validates that the secret key meets minimum security requirements.
-        
+
         Args:
             v: Secret key string or SecretStr
-            
+
         Returns:
             str | SecretStr: Validated secret key
-            
+
         Raises:
             ValueError: If the secret key is too short
         """
@@ -177,29 +169,34 @@ class Settings(BaseSettings):
                 raise ValueError("SECRET_KEY must be at least 32 characters long")
             return v
         raise ValueError("SECRET_KEY must be a string or SecretStr")
-    
+
     model_config = SettingsConfigDict(
         case_sensitive=True,
         env_file=".env",
-        env_file_encoding='utf-8',
-        extra='ignore',
+        env_file_encoding="utf-8",
+        extra="ignore",
         json_schema_extra={
-            "examples": [{
-                "PROJECT_NAME": "FastAPI User Management",
-                "API_PREFIX": "/api",
-                "API_V1_STR": "v1",
-                "DEBUG": False,
-                "SECRET_KEY": "your-super-secret-key-here-at-least-32-chars",
-                "ACCESS_TOKEN_EXPIRE_MINUTES": 11520,
-                "BACKEND_CORS_ORIGINS": ["http://localhost:8000", "http://localhost:3000"],
-                "RATE_LIMIT_PER_MINUTE": 60,
-                "POSTGRES_SERVER": "localhost",
-                "POSTGRES_USER": "postgres",
-                "POSTGRES_PASSWORD": "your-secure-password",
-                "POSTGRES_DB": "user_management",
-                "POSTGRES_PORT": 5432
-            }]
-        }
+            "examples": [
+                {
+                    "PROJECT_NAME": "FastAPI User Management",
+                    "API_PREFIX": "/api",
+                    "API_V1_STR": "v1",
+                    "DEBUG": False,
+                    "SECRET_KEY": "your-super-secret-key-here-at-least-32-chars",
+                    "ACCESS_TOKEN_EXPIRE_MINUTES": 11520,
+                    "BACKEND_CORS_ORIGINS": [
+                        "http://localhost:8000",
+                        "http://localhost:3000",
+                    ],
+                    "RATE_LIMIT_PER_MINUTE": 60,
+                    "POSTGRES_SERVER": "localhost",
+                    "POSTGRES_USER": "postgres",
+                    "POSTGRES_PASSWORD": "your-secure-password",
+                    "POSTGRES_DB": "user_management",
+                    "POSTGRES_PORT": 5432,
+                }
+            ]
+        },
     )
 
 
@@ -207,11 +204,11 @@ class Settings(BaseSettings):
 def get_settings() -> Settings:
     """
     Creates and returns a cached Settings instance.
-    
+
     The settings are cached to avoid reading the environment variables
     on every request. The cache is invalidated when the environment
     variables change.
-    
+
     Returns:
         Settings: Application settings loaded from environment variables
     """

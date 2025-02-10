@@ -1,6 +1,7 @@
 """
 Tests for the health check endpoint.
 """
+
 from fastapi.testclient import TestClient
 
 from app.schemas import HealthResponse, HealthStatus
@@ -22,4 +23,4 @@ def test_health_check_validation(client: TestClient) -> None:
     data = response.json()
     # Validate against our Pydantic model
     health_response = HealthResponse(**data)
-    assert health_response.status == HealthStatus.HEALTHY 
+    assert health_response.status == HealthStatus.HEALTHY

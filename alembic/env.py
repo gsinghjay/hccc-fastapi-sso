@@ -1,6 +1,7 @@
 """
 Alembic environment configuration.
 """
+
 import asyncio
 from logging.config import fileConfig
 
@@ -32,10 +33,11 @@ target_metadata = Base.metadata
 DATABASE_URL = getenv("DATABASE_URL", "postgresql+asyncpg://user:pass@localhost/dbname")
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
+
 def run_migrations_offline() -> None:
     """
     Run migrations in 'offline' mode.
-    
+
     This configures the context with just a URL and not an Engine,
     though an Engine is acceptable here as well.
     """
@@ -50,10 +52,11 @@ def run_migrations_offline() -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+
 def do_run_migrations(connection: Connection) -> None:
     """
     Run actual migrations.
-    
+
     Args:
         connection: Database connection to use for migrations
     """
@@ -66,12 +69,13 @@ def do_run_migrations(connection: Connection) -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+
 async def run_async_migrations() -> None:
     """Run migrations in async mode."""
     config_section = config.get_section(config.config_ini_section)
     if config_section is None:
         raise ValueError("Config section not found")
-        
+
     connectable = async_engine_from_config(
         config_section,
         prefix="sqlalchemy.",
@@ -83,11 +87,13 @@ async def run_async_migrations() -> None:
 
     await connectable.dispose()
 
+
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
     asyncio.run(run_async_migrations())
 
+
 if context.is_offline_mode():
     run_migrations_offline()
 else:
-    run_migrations_online() 
+    run_migrations_online()

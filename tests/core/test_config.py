@@ -1,6 +1,7 @@
 """
 Tests for the configuration management module.
 """
+
 import os
 from typing import Any
 from unittest.mock import patch
@@ -20,13 +21,13 @@ def test_settings() -> Settings:
         POSTGRES_USER="test_user",
         POSTGRES_PASSWORD=SecretStr("test_password"),
         SECRET_KEY=SecretStr("x" * 32),
-        ACCESS_TOKEN_EXPIRE_MINUTES=11520
+        ACCESS_TOKEN_EXPIRE_MINUTES=11520,
     )
 
 
 class TestSettingsConfiguration:
     """Group related settings tests together"""
-    
+
     def test_settings_defaults(self, test_settings: Settings) -> None:
         """Test default values are set correctly."""
         assert test_settings.PROJECT_NAME == "FastAPI User Management"
@@ -44,7 +45,7 @@ class TestSettingsConfiguration:
         """Test API v1 path is constructed correctly."""
         settings = Settings()
         assert settings.API_V1_PATH == "/api/v1"
-        
+
         # Test with custom values
         settings = Settings(API_PREFIX="/custom", API_V1_STR="version1")
         assert settings.API_V1_PATH == "/custom/version1"
@@ -56,9 +57,9 @@ class TestSettingsConfiguration:
             POSTGRES_USER="testuser",
             POSTGRES_PASSWORD=SecretStr("testpass"),
             POSTGRES_DB="testdb",
-            POSTGRES_PORT=5433
+            POSTGRES_PORT=5433,
         )
-        
+
         # PostgresDsn adds an extra slash before the database name
         expected_uri = "postgresql://testuser:testpass@testhost:5433//testdb"
         assert str(settings.SQLALCHEMY_DATABASE_URI) == expected_uri
@@ -79,11 +80,19 @@ class TestSettingsConfiguration:
     @pytest.mark.parametrize(
         "origins,expected",
         [
-            ("http://localhost,http://example.com", ["http://localhost", "http://example.com"]),
-            (["http://localhost", "http://example.com"], ["http://localhost", "http://example.com"]),
+            (
+                "http://localhost,http://example.com",
+                ["http://localhost", "http://example.com"],
+            ),
+            (
+                ["http://localhost", "http://example.com"],
+                ["http://localhost", "http://example.com"],
+            ),
         ],
     )
-    def test_valid_cors_origins(self, origins: str | list[str], expected: list[str]) -> None:
+    def test_valid_cors_origins(
+        self, origins: str | list[str], expected: list[str]
+    ) -> None:
         """Test valid CORS origins configurations."""
         settings = Settings(BACKEND_CORS_ORIGINS=origins)
         assert settings.BACKEND_CORS_ORIGINS == expected
@@ -93,7 +102,10 @@ class TestSettingsConfiguration:
         [
             ([123, 456], "All CORS origins must be strings"),
             ("[invalid format]", "String input should be comma-separated URLs"),
-            (123, "BACKEND_CORS_ORIGINS should be a comma separated string or a list of strings"),
+            (
+                123,
+                "BACKEND_CORS_ORIGINS should be a comma separated string or a list of strings",
+            ),
         ],
     )
     def test_invalid_cors_origins(self, origins: Any, expected_error: str) -> None:
@@ -116,7 +128,7 @@ class TestSettingsConfiguration:
                     "POSTGRES_USER": "admin",
                     "POSTGRES_PASSWORD": "secure123",
                     "POSTGRES_DB": "testdb",
-                    "POSTGRES_PORT": "5434"
+                    "POSTGRES_PORT": "5434",
                 },
                 {
                     "PROJECT_NAME": "Test Project",
@@ -126,12 +138,14 @@ class TestSettingsConfiguration:
                     "POSTGRES_SERVER": "testdb.example.com",
                     "POSTGRES_USER": "admin",
                     "POSTGRES_DB": "testdb",
-                    "POSTGRES_PORT": 5434
-                }
+                    "POSTGRES_PORT": 5434,
+                },
             ),
         ],
     )
-    def test_settings_from_env(self, env_vars: dict[str, str], expected_attrs: dict[str, Any]) -> None:
+    def test_settings_from_env(
+        self, env_vars: dict[str, str], expected_attrs: dict[str, Any]
+    ) -> None:
         """Test settings are loaded correctly from environment variables."""
         with patch.dict(os.environ, env_vars, clear=True):
             settings = Settings()
@@ -142,16 +156,16 @@ class TestSettingsConfiguration:
         """Test settings caching behavior."""
         # First call should create settings
         settings1 = get_settings()
-        
+
         # Second call should return cached instance
         settings2 = get_settings()
-        
+
         # Should be the same instance
         assert settings1 is settings2
-        
+
         # Modify environment and verify cache is used
         with patch.dict(os.environ, {"PROJECT_NAME": "New Name"}, clear=False):
             settings3 = get_settings()
             # Should still be the same cached instance
             assert settings3 is settings1
-            assert settings3.PROJECT_NAME == settings1.PROJECT_NAME 
+            assert settings3.PROJECT_NAME == settings1.PROJECT_NAME

@@ -1,22 +1,19 @@
 """
 Health check endpoints for monitoring API status.
 """
+
 from fastapi import APIRouter, Request
 from app.schemas import HealthResponse, HealthStatus, HTTPError
 
-router = APIRouter(
-    prefix="/health",
-    tags=["Health"]
-)
+router = APIRouter(prefix="/health", tags=["Health"])
+
 
 @router.get(
     "",
     response_model=HealthResponse,
     summary="Health Check",
     description="Endpoint to verify API service status",
-    responses={
-        500: {"model": HTTPError, "description": "Internal server error"}
-    }
+    responses={500: {"model": HTTPError, "description": "Internal server error"}},
 )
 async def health_check(request: Request) -> HealthResponse:
     """
@@ -33,4 +30,4 @@ async def health_check(request: Request) -> HealthResponse:
     """
     # For now, we'll just return healthy. In the future, we can add more checks
     # like database connectivity, external services, etc.
-    return HealthResponse(status=HealthStatus.HEALTHY) 
+    return HealthResponse(status=HealthStatus.HEALTHY)

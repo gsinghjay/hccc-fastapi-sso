@@ -1,6 +1,7 @@
 """
 Test configuration and fixtures.
 """
+
 from typing import Generator
 
 import pytest
@@ -18,7 +19,7 @@ def get_settings_override() -> Settings:
         POSTGRES_DB="test_db",
         POSTGRES_USER="test_user",
         POSTGRES_PASSWORD=SecretStr("test_password"),
-        SECRET_KEY=SecretStr("x" * 32)
+        SECRET_KEY=SecretStr("x" * 32),
     )
 
 
@@ -26,7 +27,7 @@ def get_settings_override() -> Settings:
 def client() -> Generator[TestClient, None, None]:
     """
     Test client fixture that can be used across all tests.
-    
+
     Returns:
         TestClient: A test client configured to make requests to the test app
     """

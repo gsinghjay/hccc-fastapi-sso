@@ -1,6 +1,7 @@
 """
 Central router configuration for all API endpoints.
 """
+
 from fastapi import APIRouter
 
 from app.api.v1 import health
@@ -15,4 +16,4 @@ api_router = APIRouter()
 api_router.include_router(health.router, prefix=f"/{settings.API_V1_STR}")
 
 # Add additional version routers here as needed
-# api_router.include_router(v2_router, prefix="/v2") 
+# api_router.include_router(v2_router, prefix="/v2")

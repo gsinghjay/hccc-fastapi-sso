@@ -1,6 +1,7 @@
 """
 Main FastAPI application module.
 """
+
 from fastapi import FastAPI
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.types import ASGIApp
@@ -13,23 +14,30 @@ from app.core.config import get_settings
 
 settings = get_settings()
 
+
 class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
     """Middleware to handle scheme setting."""
-    
+
     def __init__(self, app: ASGIApp) -> None:
         super().__init__(app)
-    
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
+
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
         # Preserve the original scheme in development
         if "headers" in request.scope:
             # Get the original scheme from X-Forwarded-Proto if present
             forwarded_proto = next(
-                (value.decode() for key, value in request.scope["headers"]
-                if key.decode().lower() == "x-forwarded-proto"),
-                request.url.scheme
+                (
+                    value.decode()
+                    for key, value in request.scope["headers"]
+                    if key.decode().lower() == "x-forwarded-proto"
+                ),
+                request.url.scheme,
             )
             request.scope["scheme"] = forwarded_proto
         return await call_next(request)
+
 
 def create_application() -> FastAPI:
     """
@@ -51,7 +59,16 @@ def create_application() -> FastAPI:
         "deepLinking": True,
         "showExtensions": True,
         "showCommonExtensions": True,
-        "supportedSubmitMethods": ["get", "put", "post", "delete", "options", "head", "patch", "trace"],
+        "supportedSubmitMethods": [
+            "get",
+            "put",
+            "post",
+            "delete",
+            "options",
+            "head",
+            "patch",
+            "trace",
+        ],
         "dom_id": "#swagger-ui",
         "layout": "BaseLayout",
         "validatorUrl": None,  # Disable validator
@@ -60,7 +77,7 @@ def create_application() -> FastAPI:
         "withCredentials": True,
         "queryConfigEnabled": True,
         "defaultModelRendering": "model",
-        "displaySchemas": True
+        "displaySchemas": True,
     }
 
     app = FastAPI(
@@ -74,11 +91,15 @@ def create_application() -> FastAPI:
         debug=settings.DEBUG,
         root_path="",
         root_path_in_servers=False,
-        servers=[{
-            "url": "https://localhost",  # Always use HTTPS since Traefik handles SSL
-            "description": "Development server" if settings.DEBUG else "Production server"
-        }],
-        openapi_prefix=""  # Important: This ensures the OpenAPI schema uses the correct base URL
+        servers=[
+            {
+                "url": "https://localhost",  # Always use HTTPS since Traefik handles SSL
+                "description": (
+                    "Development server" if settings.DEBUG else "Production server"
+                ),
+            }
+        ],
+        openapi_prefix="",  # Important: This ensures the OpenAPI schema uses the correct base URL
     )
 
     # Setup middleware
@@ -94,9 +115,5 @@ app = create_application()
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(
-        app, 
-        host="0.0.0.0", 
-        port=8000,
-        reload=settings.DEBUG
-    )
+
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=settings.DEBUG)
