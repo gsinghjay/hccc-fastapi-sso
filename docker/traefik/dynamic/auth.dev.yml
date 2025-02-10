@@ -1,0 +1,43 @@
+http:
+  middlewares:
+    dev-cors:
+      headers:
+        accessControlAllowMethods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - OPTIONS
+          - HEAD
+          - PATCH
+        accessControlAllowHeaders:
+          - "*"
+        accessControlAllowOriginList:
+          - "*"
+        accessControlAllowCredentials: true
+        accessControlMaxAge: 3600
+        addVaryHeader: true
+    
+    dev-scheme:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+          X-Forwarded-Host: "localhost"
+          X-Real-IP: "{{ .RemoteAddr }}"
+        customResponseHeaders:
+          Strict-Transport-Security: "max-age=31536000; includeSubDomains; preload"
+          X-Scheme: "https"
+          Access-Control-Allow-Origin: "*"
+          Access-Control-Allow-Methods: "GET,POST,PUT,DELETE,OPTIONS,HEAD,PATCH"
+          Access-Control-Allow-Headers: "*"
+          Access-Control-Allow-Credentials: "true"
+          Access-Control-Max-Age: "3600"
+        hostsProxyHeaders:
+          - "X-Forwarded-Host"
+          - "X-Forwarded-Proto"
+          - "X-Real-IP"
+    
+    dev-redirect:
+      redirectScheme:
+        scheme: https
+        permanent: true 
