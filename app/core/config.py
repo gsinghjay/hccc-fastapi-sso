@@ -21,6 +21,7 @@ class Settings(BaseSettings):
         API_V1_STR (str): API version 1 path component (e.g., v1)
         SECRET_KEY (SecretStr): Secret key for JWT token generation
         ACCESS_TOKEN_EXPIRE_MINUTES (int): JWT token expiration time in minutes
+        JWT_ALGORITHM (str): Algorithm used for JWT token signing
         BACKEND_CORS_ORIGINS (list[str]): List of allowed CORS origins
         POSTGRES_SERVER (str): PostgreSQL server hostname
         POSTGRES_USER (str): PostgreSQL username
@@ -52,6 +53,10 @@ class Settings(BaseSettings):
         default=11520,  # 8 days (60 * 24 * 8)
         ge=1,
         description="JWT token expiration time in minutes (default: 8 days)",
+    )
+    JWT_ALGORITHM: str = Field(
+        default="HS256",
+        description="Algorithm used for JWT token signing (default: HS256)",
     )
 
     # CORS
@@ -185,6 +190,7 @@ class Settings(BaseSettings):
                     "DEBUG": False,
                     "SECRET_KEY": "your-super-secret-key-here-at-least-32-chars",
                     "ACCESS_TOKEN_EXPIRE_MINUTES": 11520,
+                    "JWT_ALGORITHM": "HS256",
                     "BACKEND_CORS_ORIGINS": [
                         "http://localhost:8000",
                         "http://localhost:3000",
