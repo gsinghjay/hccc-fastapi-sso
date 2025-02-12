@@ -35,24 +35,39 @@ class UserCreate(UserBase):
     Extends UserBase to add password field.
 
     Attributes:
-        password (str): User's password (8-100 characters)
+        password (str): User's password (minimum 8 characters, must be secure)
     """
 
     password: str = Field(
         ...,
         min_length=8,
         max_length=100,
-        description="User's password",
-        examples=["securepassword123"],
+        description="User's password (minimum 8 characters, must contain letters, numbers, and special characters)",
+        examples=["SecureP@ssw0rd123"],
+        pattern=r"[A-Za-z\d@$!%*#?&]{8,}",  # At least 8 chars, allowing letters, numbers, and special chars
     )
 
     model_config = {
         "json_schema_extra": {
             "example": {
-                "email": "user@example.com",
+                "email": "john.doe@example.com",
                 "full_name": "John Doe",
-                "password": "securepassword123",
-            }
+                "password": "SecureP@ssw0rd123",
+            },
+            "examples": [
+                {
+                    "email": "john.doe@example.com",
+                    "full_name": "John Doe",
+                    "password": "SecureP@ssw0rd123",
+                    "summary": "Standard user registration",
+                },
+                {
+                    "email": "jane.smith@company.com",
+                    "full_name": "Jane Smith",
+                    "password": "MySecureP@ss2024",
+                    "summary": "Business user registration",
+                },
+            ],
         }
     }
 
