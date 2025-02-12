@@ -1,17 +1,21 @@
 """
-Tests for authentication service.
+Tests for authentication service and dependencies.
 """
 
 import pytest
-from datetime import datetime
-from unittest.mock import AsyncMock
+from datetime import datetime, timedelta
+from unittest.mock import AsyncMock, MagicMock
 from uuid import UUID
 from pytest_mock import MockFixture
+from jose import jwt
+from fastapi import HTTPException
+from sqlalchemy import select
 
 from app.core.config import get_settings
 from app.models.user import User
-from app.services.auth import AuthService
-from app.services.exceptions import AuthenticationError, UserNotFoundError
+from app.services.auth import AuthService, AuthenticationError
+from app.services.exceptions import UserNotFoundError
+from app.dependencies.auth import get_current_user, get_current_user_optional
 
 settings = get_settings()
 
@@ -34,7 +38,45 @@ def mock_db(mock_user: User) -> AsyncMock:
     """Fixture for a mock database session."""
     mock = AsyncMock()
     mock.get_by_email = AsyncMock()
+    
+    # Set up the execute chain to return a mock user
+    scalar_mock = AsyncMock()
+    scalar_mock.return_value = mock_user
+    
+    result_mock = AsyncMock()
+    result_mock.scalar_one_or_none = scalar_mock
+    
+    execute_mock = AsyncMock()
+    execute_mock.return_value = result_mock
+    mock.execute = execute_mock
+    
     return mock
+
+
+@pytest.fixture
+def valid_token(mock_user: User) -> str:
+    """Fixture for a valid JWT token."""
+    return jwt.encode(
+        {
+            "sub": mock_user.email,
+            "exp": datetime.utcnow() + timedelta(minutes=15),
+        },
+        settings.SECRET_KEY.get_secret_value(),
+        algorithm=settings.JWT_ALGORITHM,
+    )
+
+
+@pytest.fixture
+def expired_token(mock_user: User) -> str:
+    """Fixture for an expired JWT token."""
+    return jwt.encode(
+        {
+            "sub": mock_user.email,
+            "exp": datetime.utcnow() - timedelta(minutes=15),
+        },
+        settings.SECRET_KEY.get_secret_value(),
+        algorithm=settings.JWT_ALGORITHM,
+    )
 
 
 class TestAuthService:
@@ -115,3 +157,129 @@ class TestAuthService:
         assert exc_info.value.code == 401
         assert "Invalid password" in str(exc_info.value)
         mock_db.get_by_email.assert_called_once_with("test@example.com")
+
+
+class TestAuthDependencies:
+    """Test cases for authentication dependencies."""
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_success(
+        self,
+        mock_db: AsyncMock,
+        mock_user: User,
+        valid_token: str,
+    ) -> None:
+        """Test successful user retrieval from valid token."""
+        # Mock database query
+        result_mock = MagicMock()
+        result_mock.scalar_one_or_none.return_value = mock_user
+        mock_db.execute = AsyncMock(return_value=result_mock)
+
+        # Get user from token
+        user = await get_current_user(token=valid_token, db=mock_db)
+
+        # Verify behavior
+        assert isinstance(user, User)  # Ensure we got a User instance
+        assert user.id == mock_user.id
+        assert user.email == mock_user.email
+        mock_db.execute.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_expired_token(
+        self,
+        mock_db: AsyncMock,
+        expired_token: str,
+    ) -> None:
+        """Test error handling for expired token."""
+        with pytest.raises(HTTPException) as exc_info:
+            await get_current_user(token=expired_token, db=mock_db)
+
+        assert exc_info.value.status_code == 401
+        assert exc_info.value.detail == "Token has expired"
+        assert exc_info.value.headers["WWW-Authenticate"] == "Bearer"
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_invalid_token(
+        self,
+        mock_db: AsyncMock,
+    ) -> None:
+        """Test error handling for invalid token."""
+        with pytest.raises(HTTPException) as exc_info:
+            await get_current_user(token="invalid_token", db=mock_db)
+
+        assert exc_info.value.status_code == 401
+        assert exc_info.value.detail == "Could not validate credentials"
+        assert exc_info.value.headers["WWW-Authenticate"] == "Bearer"
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_not_found(
+        self,
+        mock_db: AsyncMock,
+        valid_token: str,
+    ) -> None:
+        """Test error handling for valid token but non-existent user."""
+        # Mock user not found
+        result_mock = MagicMock()
+        result_mock.scalar_one_or_none.return_value = None
+        mock_db.execute = AsyncMock(return_value=result_mock)
+
+        with pytest.raises(HTTPException) as exc_info:
+            await get_current_user(token=valid_token, db=mock_db)
+
+        assert exc_info.value.status_code == 401
+        assert exc_info.value.detail == "User not found"
+        assert exc_info.value.headers["WWW-Authenticate"] == "Bearer"
+        mock_db.execute.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_optional_with_valid_token(
+        self,
+        mock_db: AsyncMock,
+        mock_user: User,
+        valid_token: str,
+    ) -> None:
+        """Test optional authentication with valid token."""
+        # Mock database query
+        result_mock = MagicMock()
+        result_mock.scalar_one_or_none.return_value = mock_user
+        mock_db.execute = AsyncMock(return_value=result_mock)
+
+        # Get user from token
+        user = await get_current_user_optional(db=mock_db, token=valid_token)
+
+        # Verify behavior
+        assert isinstance(user, User)  # Ensure we got a User instance
+        assert user.id == mock_user.id
+        assert user.email == mock_user.email
+        mock_db.execute.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_optional_with_no_token(
+        self,
+        mock_db: AsyncMock,
+    ) -> None:
+        """Test optional authentication with no token."""
+        user = await get_current_user_optional(db=mock_db, token=None)
+        assert user is None
+        mock_db.execute.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_optional_with_invalid_token(
+        self,
+        mock_db: AsyncMock,
+    ) -> None:
+        """Test optional authentication with invalid token."""
+        user = await get_current_user_optional(db=mock_db, token="invalid_token")
+        assert user is None
+        mock_db.execute.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_get_current_user_optional_with_expired_token(
+        self,
+        mock_db: AsyncMock,
+        expired_token: str,
+    ) -> None:
+        """Test optional authentication with expired token."""
+        user = await get_current_user_optional(db=mock_db, token=expired_token)
+        assert user is None
+        mock_db.execute.assert_not_called()
