@@ -2,9 +2,9 @@
 SQLAlchemy implementation of the user repository.
 """
 
-from typing import Protocol
+from typing import Protocol, List, Sequence, cast, Awaitable
 from uuid import UUID
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User
@@ -61,6 +61,27 @@ class UserRepository(Protocol):
         """
         ...
 
+    async def delete(self, user_id: UUID) -> bool:
+        """
+        Delete a user by ID.
+
+        Args:
+            user_id: ID of the user to delete
+
+        Returns:
+            bool: True if user was deleted, False if user was not found
+        """
+        ...
+
+    async def list(self) -> List[User]:
+        """
+        List all users.
+
+        Returns:
+            List[User]: List of all users
+        """
+        ...
+
 
 class SQLAlchemyUserRepository:
     """SQLAlchemy implementation of the UserRepository protocol."""
@@ -81,7 +102,10 @@ class SQLAlchemyUserRepository:
         """
         stmt = select(User).where(User.id == user_id)
         result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        scalar_result = result.scalar_one_or_none()
+        if hasattr(scalar_result, "__await__"):
+            scalar_result = await cast(Awaitable[User | None], scalar_result)
+        return scalar_result
 
     async def get_by_email(self, email: str) -> User | None:
         """
@@ -95,7 +119,10 @@ class SQLAlchemyUserRepository:
         """
         stmt = select(User).where(User.email == email)
         result = await self.session.execute(stmt)
-        return result.scalar_one_or_none()
+        scalar_result = result.scalar_one_or_none()
+        if hasattr(scalar_result, "__await__"):
+            scalar_result = await cast(Awaitable[User | None], scalar_result)
+        return scalar_result
 
     async def create(self, user: User) -> User:
         """
@@ -126,3 +153,32 @@ class SQLAlchemyUserRepository:
         await self.session.commit()
         await self.session.refresh(user)
         return user
+
+    async def delete(self, user_id: UUID) -> bool:
+        """
+        Delete a user by ID.
+
+        Args:
+            user_id: ID of the user to delete
+
+        Returns:
+            bool: True if user was deleted, False if user was not found
+        """
+        stmt = delete(User).where(User.id == user_id)
+        result = await self.session.execute(stmt)
+        await self.session.commit()
+        return result.rowcount > 0
+
+    async def list(self) -> List[User]:
+        """
+        List all users.
+
+        Returns:
+            List[User]: List of all users
+        """
+        stmt = select(User)
+        result = await self.session.scalars(stmt)
+        all_results = result.all()
+        if hasattr(all_results, "__await__"):
+            all_results = await cast(Awaitable[Sequence[User]], all_results)
+        return list(all_results)
