@@ -11,13 +11,12 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-# Import your SQLAlchemy models and config
-# We'll use environment variables directly until config is set up
-from os import getenv
-from sqlalchemy.ext.declarative import declarative_base
+# Import models and config
+from app.db.base import Base
+from app.models import user  # noqa
+from app.core.config import get_settings
 
-# Create a base class for declarative models
-Base = declarative_base()
+settings = get_settings()
 
 # this is the Alembic Config object
 config = context.config
@@ -30,8 +29,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 # Override sqlalchemy.url with environment variable
-DATABASE_URL = getenv("DATABASE_URL", "postgresql+asyncpg://user:pass@localhost/dbname")
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+config.set_main_option("sqlalchemy.url", str(settings.SQLALCHEMY_DATABASE_URI))
 
 
 def run_migrations_offline() -> None:
