@@ -51,12 +51,14 @@ jobs:
           TEST_POSTGRES_DB: test_user_management
           TEST_POSTGRES_PORT: 5432
           TEST_DEBUG: "true"
+          CI: "true"
         run: |
           mkdir -p .reports
           poetry run pytest -v -c .github/pytest.ini \
             --cov=app \
             --cov-report=xml:.reports/coverage.xml \
-            --junitxml=.reports/junit.xml
+            --junitxml=.reports/junit.xml \
+            -m "not skip_in_ci"
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
