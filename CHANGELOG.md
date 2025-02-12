@@ -1,6 +1,19 @@
 # CHANGELOG
 
 
+## v3.1.2 (2025-02-12)
+
+### Bug Fixes
+
+- Correct pytest.ini syntax for GitHub Actions
+  ([`a177482`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/a177482ecefb1a448805e12fbc894b1582be6dc1))
+
+### Continuous Integration
+
+- Enable GitHub Actions for all branch pushes
+  ([`090a52c`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/090a52c1de4b44c2977c5009c3f92855b81fb816))
+
+
 ## v3.1.1 (2025-02-12)
 
 ### Bug Fixes
