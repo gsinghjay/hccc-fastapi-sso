@@ -14,20 +14,24 @@ build/
 .DS_Store
 *.log
 
-# Coverage - ignore local coverage data but track XML reports
+# Coverage and Test Reports
 .coverage
 .coverage.*
-coverage-reports/html/
 htmlcov/
-!coverage-reports/
-!coverage-reports/coverage.xml
+.reports/
+!.reports/.gitkeep
+coverage-reports/html/
+coverage.xml
 
+# IDE
 target/
 .idea/
 .vscode/
 *.swp
 *~
 *.bak
+
+# Project specific
 alembic/versions/*.py
 .repomix-output.txt
 local-docs/
