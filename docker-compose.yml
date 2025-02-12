@@ -57,7 +57,7 @@ services:
       # HTTPS Router
       - "traefik.http.routers.websecure-app.rule=Host(`${DEV_DOMAIN:-localhost}`)"
       - "traefik.http.routers.websecure-app.entrypoints=websecure"
-      - "traefik.http.routers.websecure-app.middlewares=cors-headers,secure-headers,security-headers,scheme-enforcer"
+      - "traefik.http.routers.websecure-app.middlewares=cors-headers,secure-headers,scheme-enforcer"
       - "traefik.http.routers.websecure-app.tls=true"
       # Service
       - "traefik.http.services.app.loadbalancer.server.port=8000"
@@ -74,15 +74,8 @@ services:
       # Middleware - Secure Headers
       - "traefik.http.middlewares.secure-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.middlewares.secure-headers.headers.customrequestheaders.X-Forwarded-Host=localhost"
-      - "traefik.http.middlewares.secure-headers.headers.customresponseheaders.Strict-Transport-Security=max-age=31536000; includeSubDomains; preload"
       - "traefik.http.middlewares.secure-headers.headers.customresponseheaders.X-Scheme=https"
       - "traefik.http.middlewares.secure-headers.headers.hostsproxyheaders=X-Forwarded-Host,X-Forwarded-Proto,X-Real-IP"
-      # Middleware - Security Headers for Development
-      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.Content-Security-Policy=default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob: ws:; frame-ancestors 'self'; img-src 'self' https: http: data: blob:; font-src 'self' https: http: data:; form-action 'self'; media-src 'self' https: http: data: blob:; connect-src 'self' https: http: ws: wss:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; style-src 'self' 'unsafe-inline' https: http:;"
-      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-Content-Type-Options=nosniff"
-      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-Frame-Options=SAMEORIGIN"
-      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-XSS-Protection=1; mode=block"
-      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.Referrer-Policy=strict-origin-when-cross-origin"
       # Force HTTPS scheme for all requests
       - "traefik.http.middlewares.scheme-enforcer.headers.customrequestheaders.X-Forwarded-Proto=https"
 

@@ -124,30 +124,26 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                     "Cross-Origin-Opener-Policy": "same-origin",
                     "Cross-Origin-Resource-Policy": "same-origin",
                     "Cross-Origin-Embedder-Policy": "require-corp",
+                    "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
                 }
             )
 
-            # Production CSP - Strict security
+            # Production CSP - Strict security with documentation support
             response.headers["Content-Security-Policy"] = "; ".join(
                 [
                     "default-src 'self'",
-                    "script-src 'self'",
-                    "style-src 'self'",
-                    "img-src 'self' data:",
-                    "font-src 'self' data:",
+                    "worker-src 'self' blob: https://cdn.jsdelivr.net",
+                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net blob:",
+                    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+                    "img-src 'self' data: https:",
+                    "font-src 'self' data: https:",
                     "form-action 'self'",
                     "frame-ancestors 'none'",
                     "base-uri 'self'",
                     "object-src 'none'",
-                    "connect-src 'self'",
+                    "connect-src 'self' https:",
                     "media-src 'none'",
-                    "worker-src 'none'",
                 ]
-            )
-
-            # HSTS in production
-            response.headers["Strict-Transport-Security"] = (
-                "max-age=31536000; includeSubDomains; preload"
             )
 
             # Permissions Policy in production
@@ -164,22 +160,27 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
                 ]
             )
         else:
-            # Development CSP - Allow Swagger UI and development resources
+            # Development CSP - More permissive for tools like ReDoc
             response.headers["Content-Security-Policy"] = "; ".join(
                 [
-                    "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data:",
-                    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:",
+                    "worker-src blob: 'self' 'unsafe-inline' 'unsafe-eval' https: http:",  # Primary worker directive
+                    "script-src blob: 'self' 'unsafe-inline' 'unsafe-eval' https: http:",  # Matching script-src
+                    "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob: ws:",
                     "style-src 'self' 'unsafe-inline' https: http:",
-                    "img-src 'self' https: http: data:",
+                    "img-src 'self' https: http: data: blob:",
                     "font-src 'self' https: http: data:",
-                    "connect-src 'self' https: http:",
+                    "connect-src 'self' https: http: ws: wss:",
                     "frame-ancestors 'self'",
                     "form-action 'self'",
+                    "media-src 'self' https: http: data: blob:",
                 ]
             )
 
-            # Allow iframe in development for Swagger UI
-            security_headers["X-Frame-Options"] = "SAMEORIGIN"
+            # Development-specific headers
+            security_headers.update({
+                "X-Frame-Options": "SAMEORIGIN",
+                "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+            })
 
         response.headers.update(security_headers)
         return response
