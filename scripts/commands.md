@@ -4,7 +4,8 @@ This document contains commonly used commands for the HCCC FastAPI SSO project. 
 
 ## Development Setup
 
-### Initialize Project```bash
+### Initialize Project
+```bash
 # Create required networks
 docker network create web
 docker network create backend
@@ -33,15 +34,22 @@ docker compose run --rm app poetry run pytest -n auto
 docker compose run --rm app poetry run pytest -m "db"  # Database tests
 docker compose run --rm app poetry run pytest -m "e2e"  # E2E tests
 docker compose run --rm app poetry run pytest -m "unit"  # Unit tests
+
+# Run tests with output streaming
+docker compose run --rm app poetry run pytest -v --capture=no
 ```
 
 ### Coverage Reports
 ```bash
-# Generate coverage reports
-docker compose run --rm app poetry run pytest --cov=app --cov-report=term-missing --cov-report=html:coverage-reports/html --cov-report=xml:coverage-reports/coverage.xml
+# Generate coverage reports (XML and Terminal)
+docker compose run --rm app poetry run pytest -v --cov=app --cov-report=xml:coverage-reports/coverage.xml --cov-report=term-missing
 
-# Set proper permissions for coverage reports
-docker compose run --rm app chown -R 1000:1000 /app/coverage-reports
+# Generate only terminal report with missing lines
+docker compose run --rm app poetry run pytest -v --cov=app --cov-report=term-missing
+
+# Fix coverage report permissions
+sudo chown -R $USER:$USER coverage-reports/
+chmod -R 777 coverage-reports/
 ```
 
 ## Database Operations
@@ -70,6 +78,9 @@ docker compose exec db pg_dump -U ${POSTGRES_USER} -d ${POSTGRES_DB} > backup.sq
 
 # Restore main database
 docker compose exec -T db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} < backup.sql
+
+# Create timestamped backup
+docker compose exec db pg_dump -U ${POSTGRES_USER} -d ${POSTGRES_DB} > backup_$(date +%Y%m%d_%H%M%S).sql
 ```
 
 ## Code Quality
@@ -95,6 +106,9 @@ docker compose run --rm app poetry run mypy .
 # Fix code formatting
 docker compose run --rm app poetry run ruff check --fix .
 docker compose run --rm app poetry run black .
+
+# Run all checks in sequence
+docker compose run --rm app sh -c "poetry run ruff check . && poetry run black --check . && poetry run mypy ."
 ```
 
 ## Dependency Management
@@ -112,6 +126,9 @@ docker compose run --rm app poetry update
 
 # Export requirements
 docker compose run --rm app poetry export -f requirements.txt --output requirements.txt
+
+# Export dev requirements
+docker compose run --rm app poetry export --with dev -f requirements.txt --output requirements-dev.txt
 ```
 
 ## Docker Operations
@@ -130,6 +147,9 @@ docker compose restart app
 # Clean up
 docker compose down -v  # Remove volumes
 docker system prune -f  # Clean unused resources
+
+# Remove orphaned containers
+docker compose down --remove-orphans
 ```
 
 ### Health Checks
@@ -142,6 +162,9 @@ docker compose exec db pg_isready -U ${POSTGRES_USER}
 
 # Check test database connection
 docker compose exec test_db pg_isready -U ${TEST_POSTGRES_USER}
+
+# Check all services health
+docker compose ps --format 'table {{.Name}}\t{{.Status}}'
 ```
 
 ## Production Deployment
@@ -165,6 +188,9 @@ wrk -t12 -c400 -d30s http://localhost:8000/api/v1/health
 
 # Monitor resource usage
 docker stats app db test_db traefik
+
+# Run load test with Apache Benchmark
+ab -n 1000 -c 100 http://localhost:8000/api/v1/health
 ```
 
 ## Ansible Variables Example
@@ -189,6 +215,7 @@ project_vars:
     target: ".env"
   test_commands:
     all: "docker compose run --rm app poetry run pytest -v"
+    coverage: "docker compose run --rm app poetry run pytest -v --cov=app --cov-report=html:coverage-reports/html --cov-report=term-missing"
     db: "docker compose run --rm app poetry run pytest -m 'db'"
     e2e: "docker compose run --rm app poetry run pytest -m 'e2e'"
   coverage_dir: "/app/coverage-reports"
@@ -211,9 +238,13 @@ project_vars:
 ```bash
 # Fix coverage report permissions
 sudo chown -R $USER:$USER coverage-reports/
+chmod -R 777 coverage-reports/
 
 # Fix Docker socket permissions
 sudo chmod 666 /var/run/docker.sock
+
+# Fix mounted volume permissions
+docker compose run --rm app chown -R 1000:1000 /app/coverage-reports
 ```
 
 ### Database Issues
@@ -223,6 +254,9 @@ docker compose exec db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c "SELECT pg_
 
 # Verify database migrations
 docker compose run --rm app alembic current
+
+# Check database size
+docker compose exec db psql -U ${POSTGRES_USER} -d ${POSTGRES_DB} -c "SELECT pg_size_pretty(pg_database_size('${POSTGRES_DB}'));"
 ```
 
 ### Container Issues
@@ -231,6 +265,15 @@ docker compose run --rm app alembic current
 docker compose down -v
 docker system prune -f
 docker compose up -d
+
+# Check container logs for specific service
+docker compose logs -f --tail=100 app
+
+# Inspect container configuration
+docker compose config
+
+# Check container resource usage
+docker stats --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}"
 ```
 
 Note: Replace environment variables (${VARIABLE}) with actual values when using in Ansible playbooks or scripts. 

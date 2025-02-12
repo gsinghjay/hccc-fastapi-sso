@@ -1,5 +1,13 @@
 # HCCC FastAPI SSO
 
+[![Tests](https://github.com/gsinghjay/hccc-fastapi-sso/actions/workflows/tests.yml/badge.svg)](https://github.com/gsinghjay/hccc-fastapi-sso/actions/workflows/tests.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/gsinghjay/hccc-fastapi-sso)](https://codecov.io/gh/gsinghjay/hccc-fastapi-sso)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/release/python-3120/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109.0-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?logo=docker&logoColor=white)](https://www.docker.com/)
+
 This project implements a production-ready FastAPI application for HCCC (Hudson County Community College), designed for extensibility and starting with user management. It follows best practices for security, maintainability, and scalability.
 
 ## Project Overview
