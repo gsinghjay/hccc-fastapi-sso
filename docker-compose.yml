@@ -78,7 +78,7 @@ services:
       - "traefik.http.middlewares.secure-headers.headers.customresponseheaders.X-Scheme=https"
       - "traefik.http.middlewares.secure-headers.headers.hostsproxyheaders=X-Forwarded-Host,X-Forwarded-Proto,X-Real-IP"
       # Middleware - Security Headers for Development
-      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.Content-Security-Policy=default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob: ws:; frame-ancestors 'self'; img-src 'self' https: http: data: blob:; font-src 'self' https: http: data:; form-action 'self'; media-src 'self' https: http: data: blob:; connect-src 'self' https: http: ws: wss:;"
+      - "traefik.http.middlewares.security-headers.headers.customresponseheaders.Content-Security-Policy=default-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob: ws:; frame-ancestors 'self'; img-src 'self' https: http: data: blob:; font-src 'self' https: http: data:; form-action 'self'; media-src 'self' https: http: data: blob:; connect-src 'self' https: http: ws: wss:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; style-src 'self' 'unsafe-inline' https: http:;"
       - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-Content-Type-Options=nosniff"
       - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-Frame-Options=SAMEORIGIN"
       - "traefik.http.middlewares.security-headers.headers.customresponseheaders.X-XSS-Protection=1; mode=block"

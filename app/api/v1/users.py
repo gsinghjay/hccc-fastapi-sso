@@ -16,6 +16,7 @@ from app.schemas.user import (
 )
 from app.schemas.base import HTTPError
 from app.services.user import UserService
+from app.services.exceptions import EmailAlreadyExistsError, UserNotFoundError
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -58,6 +59,11 @@ async def register_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+    except EmailAlreadyExistsError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        )
 
 
 @router.get(
@@ -98,6 +104,7 @@ async def get_current_user_profile(
         400: {"model": HTTPError, "description": "Invalid input"},
         401: {"model": HTTPError, "description": "Not authenticated"},
         404: {"model": HTTPError, "description": "User not found"},
+        409: {"model": HTTPError, "description": "Email already registered"},
         500: {"model": HTTPError, "description": "Internal server error"},
     },
 )
@@ -128,5 +135,15 @@ async def update_current_user(
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except UserNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        )
+    except EmailAlreadyExistsError as e:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
             detail=str(e),
         )

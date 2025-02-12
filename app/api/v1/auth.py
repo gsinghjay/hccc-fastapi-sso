@@ -16,6 +16,7 @@ from app.schemas.auth import (
 )
 from app.schemas.base import HTTPError
 from app.services.auth import AuthService
+from app.services.exceptions import AuthenticationError, UserNotFoundError
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
@@ -54,11 +55,16 @@ async def login(
             credentials.email, credentials.password
         )
         return TokenResponse(access_token=token, token_type="bearer")
-    except ValueError as e:
+    except (AuthenticationError, UserNotFoundError) as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
         )
 
 
