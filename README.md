@@ -161,7 +161,7 @@ This roadmap outlines the steps for building the application using Test-Driven D
 5.  **User Schemas (Pydantic):** 🔴
     *   ✅ **Test & Implement:** Base schemas in `app/schemas/base.py`.
     *   ✅ **Test & Implement:** Health check schemas in `app/schemas/health.py`.
-    *   🔴 **Test & Implement:** User schemas not implemented, though referenced in code.
+    *   ✅ **Test & Implement:** User schemas not implemented, though referenced in code.
 
 6.  **Authentication Dependencies:** 🟡
     *   🔴 **Test:** Tests for `app/dependencies/auth.py` not implemented.
