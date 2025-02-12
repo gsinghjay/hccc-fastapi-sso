@@ -43,6 +43,13 @@ jobs:
         run: poetry install --no-interaction --no-root
 
       - name: Run tests with coverage
+        env:
+          TEST_POSTGRES_SERVER: localhost
+          TEST_POSTGRES_USER: postgres
+          TEST_POSTGRES_PASSWORD: postgres
+          TEST_POSTGRES_DB: test_user_management
+          TEST_POSTGRES_PORT: 5432
+          TEST_DEBUG: "true"
         run: |
           poetry run pytest -v -c .github/pytest.ini --cov=app --cov-report=xml:coverage-reports/coverage.xml --cov-report=term-missing
 
