@@ -1,6 +1,87 @@
 # CHANGELOG
 
 
+## v3.2.0 (2025-02-12)
+
+### Bug Fixes
+
+- **ci**: Update postgres service configuration
+  ([`7807b41`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/7807b4190cb44f10496ecab2e0df8f6fd25c771a))
+
+- Add explicit container name for postgres service - Ensure consistent database connection in CI
+  environment - Fix name resolution issue in health endpoint tests
+
+- **types**: Add return type annotation for template response
+  ([`08c58c2`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/08c58c2ec8f53bb12b0ec3ddf64115c03c731210))
+
+- Add _TemplateResponse type import from starlette.templating - Add return type annotation for home
+  route handler - Fix mypy no-untyped-def error
+
+### Chores
+
+- **deps**: Add Jinja2 dependency for template rendering
+  ([`c7c5b45`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/c7c5b45e5cf6657893048aa58a4734db2c0f4027))
+
+- Add jinja2 package for HTML templating - Update poetry.lock with new dependencies
+
+- **git**: Ignore coverage.xml files
+  ([`1dfbb1f`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/1dfbb1f0111e842f04bbd36571379e0bd438faa7))
+
+- Add specific patterns for coverage.xml files - Remove coverage.xml from git tracking - Keep
+  .reports/.gitkeep for directory structure
+
+- **test**: Update coverage report
+  ([`fcf7c7d`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/fcf7c7d4a0024a3c21ad43d9061e3a57a626ebe1))
+
+### Continuous Integration
+
+- **codecov**: Upgrade codecov integration
+  ([`dd6276d`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/dd6276dba9883d6aa9c83aa294b2e79d275e8fd3))
+
+- Update codecov-action to v5 - Add test-results-action for enhanced reporting - Update file
+  parameter syntax to files - Add fail_ci_if_error flag for stricter CI checks
+
+### Features
+
+- **frontend**: Add base template and static assets
+  ([`b6cfb86`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/b6cfb86f3369b62b8042d1c33e687dfa1e4b991c))
+
+- Add base.html template with Bootstrap integration - Add custom.css with global style overrides -
+  Add main.js with utility functions - Implement sharp corners design system
+
+- **frontend**: Add frontend styling guidelines and rules
+  ([`f54ac09`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/f54ac09ede6c877a85021b50e84403ce0d8b8318))
+
+- Add comprehensive frontend styling documentation - Define sharp corners design system - Establish
+  Bootstrap integration patterns - Document component guidelines and best practices
+
+- **frontend**: Configure FastAPI for static files and templates
+  ([`d7f4ab3`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/d7f4ab305a159137ad1cd637b9d1e0f5ab1506c8))
+
+- Add Jinja2Templates configuration - Mount static files directory - Add base route for template
+  rendering - Update FastAPI application settings
+
+### Refactoring
+
+- **ci**: Streamline test reporting
+  ([`6a3c452`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/6a3c4520fe67fbfcf48070125ccefa50c11f0de2))
+
+- Move test reports to .reports/ directory - Remove redundant coverage reporting options - Update
+  .gitignore with comprehensive patterns - Clean up workflow file paths
+
+### Testing
+
+- **ci**: Skip E2E tests in CI environment
+  ([`56aa77f`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/56aa77f5640cbbdeb7f8b55921e11de9ae003a21))
+
+- Add skip_in_ci marker to pytest configuration - Mark health endpoint E2E test to be skipped in CI
+  - Update GitHub workflow to exclude skip_in_ci tests - Fix coverage report path to use .reports
+  directory
+
+This change prevents CI failures due to environment-specific E2E test issues while maintaining local
+  test capabilities.
+
+
 ## v3.1.3 (2025-02-12)
 
 
