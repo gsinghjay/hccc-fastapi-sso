@@ -1,6 +1,62 @@
 # CHANGELOG
 
 
+## v3.1.1 (2025-02-12)
+
+### Bug Fixes
+
+- **repo**: Improve async type safety in user repository
+  ([`52c1ea4`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/52c1ea4be4f4d36667b4ff13891aa361bfdee174))
+
+- Add proper type hints for async results - Handle both SQLAlchemy and mocked async behavior -
+  Remove redundant imports - Improve test compatibility with async mocks - Maintain 100% test
+  coverage for repository layer
+
+### Chores
+
+- **docker**: Update test environment configuration
+  ([`2d235bf`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/2d235bfef43e67e0465586be025cabf188213563))
+
+- Update test database configuration - Improve test isolation - Configure test resource limits - Add
+  test-specific environment variables
+
+- **test**: Add coverage reports and analysis
+  ([`7bb0caa`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/7bb0caaed1547ca95744909970db96eedc334f12))
+
+- Add HTML coverage reports - Add XML coverage reports - Document current coverage status - Track
+  coverage metrics for CI/CD
+
+### Continuous Integration
+
+- Add GitHub Actions workflow for tests
+  ([`da27e4c`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/da27e4c1433a214d93091bbfce11e1877811899d))
+
+- Add pytest workflow - Configure test matrix - Set up coverage reporting - Add mypy type checking -
+  Configure test dependencies
+
+### Documentation
+
+- Update documentation and project configuration
+  ([`f23457a`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/f23457a4a9260ca05b780c4be634e6c30b262c14))
+
+- Update README with test instructions - Add coverage report patterns to .gitignore - Add detailed
+  documentation in DOCS.md - Update development commands and scripts
+
+### Testing
+
+- **auth**: Improve auth dependency tests
+  ([`4568160`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/45681608b106ef1ea927f024942d113d26d10193))
+
+- Add test cases for auth dependencies - Fix async behavior in auth tests - Improve test coverage
+  for auth module - Add proper type hints for auth dependencies
+
+- **repo**: Add comprehensive test suite for user repository
+  ([`74866f4`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/74866f4e90d5a13c14e784634fb79b6a968be2d9))
+
+- Add test cases for all repository methods - Implement proper async mock handling - Test both
+  success and error scenarios - Ensure proper test isolation - Add test fixtures and helpers
+
+
 ## v3.1.0 (2025-02-12)
 
 ### Chores
