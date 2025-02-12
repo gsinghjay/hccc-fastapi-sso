@@ -9,7 +9,7 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.types import ASGIApp
 from starlette.requests import Request
 from starlette.responses import Response
-import os
+from starlette.templating import _TemplateResponse
 
 from app.api.router import api_router
 from app.core.middleware import setup_middleware
@@ -113,11 +113,10 @@ def create_application() -> FastAPI:
 
     # Add template routes
     @app.get("/", include_in_schema=False)
-    async def home(request: Request):
+    async def home(request: Request) -> _TemplateResponse:
         """Render the home page."""
         return templates.TemplateResponse(
-            "base.html",
-            {"request": request, "title": "Welcome to HCCC SSO"}
+            "base.html", {"request": request, "title": "Welcome to HCCC SSO"}
         )
 
     # Setup middleware
