@@ -2,9 +2,10 @@
 Authentication endpoints for user login and token management.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Security
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.core.security import verify_token
 from app.db.base import get_db
@@ -19,6 +20,13 @@ from app.services.auth import AuthService
 from app.services.exceptions import AuthenticationError, UserNotFoundError
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+# Add security scheme for Bearer token
+security = HTTPBearer(
+    description="JWT access token",
+    scheme_name="Bearer",
+    auto_error=True,
+)
 
 
 @router.post(
@@ -72,20 +80,20 @@ async def login(
     "/verify",
     response_model=TokenData,
     summary="Verify Token",
-    description="Verifies a JWT token and returns the decoded token data",
+    description="Verifies a JWT token and returns the decoded token data. Requires a valid Bearer token in the Authorization header.",
     responses={
         401: {"model": HTTPError, "description": "Invalid or expired token"},
         500: {"model": HTTPError, "description": "Internal server error"},
     },
 )
 async def verify_token_endpoint(
-    token_data: Annotated[TokenData, Depends(verify_token)]
+    credentials: Annotated[HTTPAuthorizationCredentials, Security(security)]
 ) -> TokenData:
     """
     Verify a JWT token and return its decoded data.
 
     Args:
-        token_data: Decoded token data from verify_token dependency
+        credentials: Bearer token credentials from Authorization header
 
     Returns:
         TokenData: Decoded token data containing user information
@@ -93,4 +101,5 @@ async def verify_token_endpoint(
     Raises:
         HTTPException: If token is invalid or expired
     """
+    token_data = await verify_token(credentials.credentials)
     return token_data
