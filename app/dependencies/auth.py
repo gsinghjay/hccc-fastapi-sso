@@ -8,7 +8,7 @@ in FastAPI routes using JWT tokens.
 from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt, ExpiredSignatureError
+from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -21,8 +21,7 @@ settings = get_settings()
 # OAuth2 scheme for token authentication
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl=f"{settings.API_V1_PATH}/auth/login",
-    scheme_name="Bearer",
-    auto_error=True,
+    auto_error=False,
 )
 
 
@@ -43,36 +42,38 @@ async def get_current_user(
     Raises:
         HTTPException: If token is invalid or user not found
     """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
     try:
-        # Decode JWT token
         payload = jwt.decode(
             token,
             settings.SECRET_KEY.get_secret_value(),
             algorithms=[settings.JWT_ALGORITHM],
         )
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-    except ExpiredSignatureError:
+        email = payload.get("sub")
+        if not isinstance(email, str):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token payload",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired",
+            detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    except JWTError:
-        raise credentials_exception
 
-    # Get user from database
-    result = await db.execute(select(User).where(User.email == email))
+    stmt = select(User).where(User.email == email)
+    result = await db.execute(stmt)
     user = result.scalar_one_or_none()
 
-    if user is None:
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
@@ -84,7 +85,7 @@ async def get_current_user(
 
 async def get_current_user_optional(
     db: Annotated[AsyncSession, Depends(get_db)],
-    token: str | None = None,
+    token: Annotated[str | None, Depends(oauth2_scheme)],
 ) -> User | None:
     """
     Dependency to get the current user if authenticated, or None if not.
@@ -103,18 +104,17 @@ async def get_current_user_optional(
         return None
 
     try:
-        # Decode JWT token
         payload = jwt.decode(
             token,
             settings.SECRET_KEY.get_secret_value(),
             algorithms=[settings.JWT_ALGORITHM],
         )
-        email: str = payload.get("sub")
-        if email is None:
+        email = payload.get("sub")
+        if not isinstance(email, str):
             return None
-    except (JWTError, ExpiredSignatureError):
+    except JWTError:
         return None
 
-    # Get user from database
-    result = await db.execute(select(User).where(User.email == email))
+    stmt = select(User).where(User.email == email)
+    result = await db.execute(stmt)
     return result.scalar_one_or_none()

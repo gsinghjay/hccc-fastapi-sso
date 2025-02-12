@@ -12,8 +12,8 @@ from fastapi import HTTPException
 
 from app.core.config import get_settings
 from app.models.user import User
-from app.services.auth import AuthService, AuthenticationError
-from app.services.exceptions import UserNotFoundError
+from app.services.auth import AuthService
+from app.services.exceptions import UserNotFoundError, AuthenticationError
 from app.dependencies.auth import get_current_user, get_current_user_optional
 
 settings = get_settings()
@@ -194,8 +194,10 @@ class TestAuthDependencies:
             await get_current_user(token=expired_token, db=mock_db)
 
         assert exc_info.value.status_code == 401
-        assert exc_info.value.detail == "Token has expired"
-        assert exc_info.value.headers["WWW-Authenticate"] == "Bearer"
+        assert exc_info.value.detail == "Could not validate credentials"
+        headers = exc_info.value.headers
+        assert isinstance(headers, dict)
+        assert headers.get("WWW-Authenticate") == "Bearer"
 
     @pytest.mark.asyncio
     async def test_get_current_user_invalid_token(
@@ -208,7 +210,9 @@ class TestAuthDependencies:
 
         assert exc_info.value.status_code == 401
         assert exc_info.value.detail == "Could not validate credentials"
-        assert exc_info.value.headers["WWW-Authenticate"] == "Bearer"
+        headers = exc_info.value.headers
+        assert isinstance(headers, dict)
+        assert headers.get("WWW-Authenticate") == "Bearer"
 
     @pytest.mark.asyncio
     async def test_get_current_user_not_found(
@@ -227,7 +231,9 @@ class TestAuthDependencies:
 
         assert exc_info.value.status_code == 401
         assert exc_info.value.detail == "User not found"
-        assert exc_info.value.headers["WWW-Authenticate"] == "Bearer"
+        headers = exc_info.value.headers
+        assert isinstance(headers, dict)
+        assert headers.get("WWW-Authenticate") == "Bearer"
         mock_db.execute.assert_called_once()
 
     @pytest.mark.asyncio

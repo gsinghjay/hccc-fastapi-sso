@@ -13,8 +13,15 @@ build/
 *.egg-info/
 .DS_Store
 *.log
+
+# Coverage - ignore local coverage data but track XML reports
 .coverage
+.coverage.*
+coverage-reports/html/
 htmlcov/
+!coverage-reports/
+!coverage-reports/coverage.xml
+
 target/
 .idea/
 .vscode/
