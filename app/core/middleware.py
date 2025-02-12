@@ -177,10 +177,12 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             )
 
             # Development-specific headers
-            security_headers.update({
-                "X-Frame-Options": "SAMEORIGIN",
-                "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-            })
+            security_headers.update(
+                {
+                    "X-Frame-Options": "SAMEORIGIN",
+                    "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+                }
+            )
 
         response.headers.update(security_headers)
         return response
