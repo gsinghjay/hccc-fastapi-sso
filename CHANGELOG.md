@@ -1,6 +1,44 @@
 # CHANGELOG
 
 
+## v3.0.0 (2025-02-12)
+
+### Chores
+
+- Added bcrypt
+  ([`4f20a0a`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/4f20a0a32dfd6c05d938698313b331e4abec2a84))
+
+### Features
+
+- **api**: Improve error handling and response codes
+  ([`d1d63ad`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/d1d63ad0320c8e695b6467910501a00df2413d08))
+
+BREAKING CHANGE: standardize error responses across all endpoints
+
+- Add proper exception handling for auth endpoints - Implement consistent error responses for user
+  operations - Update OpenAPI documentation with all possible response codes - Handle email
+  conflicts with 409 status code - Improve error messages for better debugging - Add proper
+  WWW-Authenticate headers for auth failures
+
+This change requires clients to handle the new error response format and status codes appropriately.
+
+- **infrastructure**: Implement automated database migrations
+  ([`492ab55`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/492ab5555b4621f909736f2638380fedea92731f))
+
+BREAKING CHANGE: add automatic database migration on container startup
+
+- Add startup script for database readiness check and migration - Configure Alembic for async
+  PostgreSQL migrations - Update Dockerfile with PostgreSQL client and startup script - Add health
+  check to ensure database and migrations are ready - Implement proper container initialization
+  sequence
+
+This change requires running containers to be recreated to use the new startup sequence.
+
+### Breaking Changes
+
+- **api**: Standardize error responses across all endpoints
+
+
 ## v2.0.0 (2025-02-12)
 
 ### Features
