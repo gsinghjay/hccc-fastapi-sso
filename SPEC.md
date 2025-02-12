@@ -1,109 +1,145 @@
 # Technical Specification
 
 ## System Overview
-The system is a production-ready FastAPI application designed for user management with a modular and scalable architecture. The primary purpose is to handle user registration, authentication, and profile retrieval. The system utilizes PostgreSQL for data storage, SQLAlchemy for ORM, JWT tokens for authentication, and follows best practices for security, testing, and maintainability. The frontend is a vanilla JavaScript application, and the backend is designed to be expanded with additional features in the future.
-
-### Main Components
-- **Frontend**: Vanilla JavaScript application.
-- **Backend**: FastAPI application with user management features.
-- **Database**: PostgreSQL.
-- **Authentication**: OAuth2 with JWT tokens.
-- **API Gateway**: Traefik as a reverse proxy.
-- **Containerization**: Docker Compose for deployment.
-- **Dependency Management**: Poetry.
-- **Linting and Formatting**: Ruff and Black.
-- **Type Checking**: Mypy with strict settings.
-- **Database Migrations**: Alembic.
-- **Logging**: Structured logging with Loki integration.
+The system is a FastAPI-based web application designed for user management, including registration, authentication, and profile management. The application is structured to be modular, scalable, and secure, utilizing modern web development practices and technologies. The main components include the FastAPI backend, PostgreSQL database, and a vanilla JavaScript frontend. External APIs may be integrated for additional functionality.
 
 ## Core Functionality
-
 ### User Management
+1. **`register_user`**
+   - **File**: `app/api/v1/users.py`
+   - **Description**: Handles user registration by validating input, hashing the password, and storing user data in PostgreSQL.
+   - **Critical Details**: 
+     - Uses Pydantic models for input validation.
+     - Hashes password using bcrypt via passlib.
+     - Stores user data in PostgreSQL through repository pattern.
 
-#### User Registration
-- **Endpoint**: `POST /v1/users/`
-- **Description**: Allows new users to register by providing an email and password. The password is hashed using bcrypt before storage.
-- **File**: `app/api/v1/users/routes.py`
-- **Function**: `register_user`
-- **Critical Details**: 
-  - Validates input using Pydantic models.
-  - Hashes the password using bcrypt.
-  - Stores user data in PostgreSQL.
+2. **`login_user`**
+   - **File**: `app/api/v1/auth.py`
+   - **Description**: Authenticates users by verifying their email and password, and returns a JWT token upon successful authentication.
+   - **Critical Details**: 
+     - Retrieves user from the database via repository pattern.
+     - Verifies password using bcrypt via passlib.
+     - Generates JWT token.
 
-#### User Login
-- **Endpoint**: `POST /v1/users/login`
-- **Description**: Authenticates users by verifying their email and password. Returns a JWT token upon successful authentication.
-- **File**: `app/api/v1/users/routes.py`
-- **Function**: `login_user`
-- **Critical Details**: 
-  - Retrieves user from the database.
-  - Verifies password using bcrypt.
-  - Generates JWT token.
-
-#### User Profile Retrieval
-- **Endpoint**: `GET /v1/users/me`
-- **Description**: Retrieves the current user's profile information.
-- **File**: `app/api/v1/users/routes.py`
-- **Function**: `get_current_user`
-- **Critical Details**: 
-  - Verifies JWT token.
-  - Retrieves user profile from the database.
+3. **`get_current_user`**
+   - **File**: `app/api/v1/users.py`
+   - **Description**: Retrieves the current user's profile information.
+   - **Critical Details**: 
+     - Verifies JWT token.
+     - Retrieves user profile from the database via repository pattern.
 
 ### Authentication
+1. **`create_access_token`**
+   - **File**: `app/core/security.py`
+   - **Description**: Generates a JWT token for authenticated users.
+   - **Critical Details**: 
+     - Creates a JWT token with user information and an expiration time.
+     - Uses environment variables for secret key and token expiration.
 
-#### JWT Token Generation
-- **Description**: Generates a JWT token for authenticated users.
-- **File**: `app/core/security.py`
-- **Function**: `create_access_token`
-- **Critical Details**: 
-  - Creates a JWT token with user information and an expiration time.
-
-#### Token Verification
-- **Description**: Verifies the validity of a JWT token.
-- **File**: `app/core/security.py`
-- **Function**: `verify_token`
-- **Critical Details**: 
-  - Decodes and verifies the JWT token to ensure it is valid and has not expired.
+2. **`verify_token`**
+   - **File**: `app/core/security.py`
+   - **Description**: Verifies the validity of a JWT token.
+   - **Critical Details**: 
+     - Decodes and verifies the JWT token to ensure it is valid and has not expired.
+     - Handles token validation errors gracefully.
 
 ### Database Operations
+The application uses the Repository pattern for database operations, implemented in the following structure:
 
-#### User CRUD Operations
-- **Description**: Handles create, read, update, and delete operations for user entities.
-- **File**: `app/db/crud/user.py`
-- **Functions**: `create_user`, `get_user_by_email`, `update_user`, `delete_user`
-- **Critical Details**: 
-  - Interacts with PostgreSQL to perform CRUD operations on user data.
+1. **Repository Interface**
+   - **File**: `app/repositories/user.py`
+   - **Class**: `UserRepository` (Protocol)
+   - **Description**: Defines the interface for user database operations.
+
+2. **Repository Implementation**
+   - **File**: `app/repositories/user.py`
+   - **Class**: `SQLAlchemyUserRepository`
+   - **Methods**:
+     - `get_by_id`: Retrieves a user by UUID.
+     - `get_by_email`: Retrieves a user by email.
+     - `create`: Creates a new user.
+     - `update`: Updates an existing user.
+   - **Critical Details**: 
+     - Uses SQLAlchemy for async database operations.
+     - Implements proper error handling.
+     - Manages database transactions.
+
+### Core Data Models
+1. **`UserCreate`**
+   - **File**: `app/schemas/user.py`
+   - **Description**: Pydantic model used for validating user registration input.
+   - **Fields**: 
+     - `email`: str (validated email format)
+     - `password`: str
+     - `full_name`: str
+
+2. **`UserResponse`**
+   - **File**: `app/schemas/user.py`
+   - **Description**: Pydantic model used for returning user data.
+   - **Fields**: 
+     - `id`: UUID
+     - `email`: str
+     - `full_name`: str
+     - `created_at`: datetime
+     - `updated_at`: datetime
+
+3. **`User` Database Model**
+   - **File**: `app/models/user.py`
+   - **Description**: SQLAlchemy model for user data.
+   - **Fields**:
+     - `id`: UUID (primary key)
+     - `email`: String(255) (unique, indexed)
+     - `hashed_password`: String(255)
+     - `full_name`: String(255)
+     - `created_at`: DateTime
+     - `updated_at`: DateTime
+
+### Main Connection Points with Other System Parts
+1. **FastAPI Routers**
+   - **Description**: Handle incoming requests and route them to appropriate handlers.
+   - **Files**: 
+     - `app/api/v1/users.py`
+     - `app/api/v1/auth.py`
+   - **Interaction**: Connects with service layer to execute business logic.
+
+2. **Service Layer**
+   - **Description**: Contains business logic and interacts with the repository layer.
+   - **Files**:
+     - `app/services/user.py`
+     - `app/services/auth.py`
+   - **Interaction**: Uses repository pattern for database operations.
+
+3. **Repository Layer**
+   - **Description**: Manages database operations using SQLAlchemy.
+   - **Files**: `app/repositories/user.py`
+   - **Interaction**: Executes CRUD operations on PostgreSQL using async SQLAlchemy.
+
+4. **Security Module**
+   - **Description**: Handles authentication and token management.
+   - **Files**: `app/core/security.py`
+   - **Interaction**: Generates and verifies JWT tokens.
+
+### Complex Business Logic or Algorithms
+1. **Password Hashing and Verification**
+   - **Description**: Uses passlib with bcrypt scheme for password management.
+   - **Files**: `app/core/hashing.py`
+   - **Critical Details**: 
+     - Ensures passwords are securely hashed and verified.
+     - Uses proper salt generation.
+
+2. **JWT Token Management**
+   - **Description**: Generates and verifies JWT tokens for user authentication.
+   - **Files**: `app/core/security.py`
+   - **Critical Details**: 
+     - Ensures secure and stateless authentication.
+     - Configurable token expiration.
 
 ## Architecture
-
-### Data Flow
-
-1. **User Registration**
-   - **Input**: User provides email and password via `POST /v1/users/`.
-   - **Process**: 
-     - Validate input using Pydantic models.
-     - Hash the password using bcrypt.
-     - Store user data in PostgreSQL.
-   - **Output**: Return success message or error details.
-
-2. **User Login**
-   - **Input**: User provides email and password via `POST /v1/users/login`.
-   - **Process**: 
-     - Retrieve user from the database.
-     - Verify password using bcrypt.
-     - Generate JWT token.
-   - **Output**: Return JWT token or error message.
-
-3. **User Profile Retrieval**
-   - **Input**: Authorized user makes a request to `GET /v1/users/me`.
-   - **Process**: 
-     - Verify JWT token.
-     - Retrieve user profile from the database.
-   - **Output**: Return user profile data or error message.
-
-### Component Interaction
-- **FastAPI Routers**: Handle incoming requests and route them to appropriate handlers.
-- **Service Layer**: Contains business logic and interacts with the database layer.
-- **Database Layer**: Manages database operations using SQLAlchemy.
-- **Security Module**: Handles authentication and token management.
-- **Dependency Injection**: Centralizes dependencies and ensures they are injected where needed.
+The system follows a modular architecture with clear separation of concerns:
+- The FastAPI backend handles API requests through versioned endpoints (`/api/v1/`).
+- The service layer contains business logic and orchestrates operations.
+- The repository layer manages data persistence using the Repository pattern.
+- The security module handles authentication and token management.
+- Asynchronous database operations are used throughout for optimal performance.
+- Data flows from the API layer to the service layer, which interacts with the repository layer for database operations.
+- The security module is integrated to handle authentication and token generation/verification.
