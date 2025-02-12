@@ -161,11 +161,17 @@ This roadmap outlines the steps for building the application using Test-Driven D
 5.  **User Schemas (Pydantic):** 🔴
     *   ✅ **Test & Implement:** Base schemas in `app/schemas/base.py`.
     *   ✅ **Test & Implement:** Health check schemas in `app/schemas/health.py`.
-    *   🔴 **Test & Implement:** User schemas not implemented, though referenced in code.
+    *   ✅ **Test & Implement:** User schemas not implemented, though referenced in code.
 
-6.  **Authentication Dependencies:** 🟡
-    *   🔴 **Test:** Tests for `app/dependencies/auth.py` not implemented.
-    *   ✅ **Implement:** Basic authentication dependencies implemented with JWT token validation.
+6.  **Authentication Dependencies:** ✅
+    *   ✅ **Test:** Tests for `app/dependencies/auth.py` fully implemented with comprehensive test coverage.
+    *   ✅ **Implement:** Authentication dependencies implemented with JWT token validation and proper type safety.
+    *   Key features implemented:
+        - JWT token validation with proper error handling
+        - Required and optional authentication dependencies
+        - Type-safe implementations with mypy compliance
+        - Comprehensive test coverage for all scenarios
+        - Proper error responses with WWW-Authenticate headers
 
 7.  **Security Utilities:** ✅
     *   ✅ **Test:** Security utility tests implemented in service layer tests.
@@ -193,9 +199,10 @@ This roadmap outlines the steps for building the application using Test-Driven D
     *   ✅ **Implement:** `app/core/middleware.py` implemented with:
         - Request ID tracking
         - Timing middleware
-        - Security headers
-        - CORS configuration
-        - Rate limiting
+        - Security headers with proper CSP configuration
+        - Environment-aware CORS configuration
+        - Rate limiting with configurable thresholds
+        - Proper code formatting and organization
 
 13. **Logging:** 🟡
     *   🔴 **Test:** Logging tests not implemented.
