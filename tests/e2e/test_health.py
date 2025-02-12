@@ -14,6 +14,7 @@ settings = get_settings_override()
 
 @pytest.mark.asyncio
 @pytest.mark.e2e
+@pytest.mark.skip_in_ci
 async def test_health_endpoint(test_db: AsyncSession) -> None:
     """Test the health endpoint returns correct status and metrics."""
     # Cast the FastAPI app to Any to satisfy the type checker

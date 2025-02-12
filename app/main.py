@@ -3,16 +3,22 @@ Main FastAPI application module.
 """
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.types import ASGIApp
 from starlette.requests import Request
 from starlette.responses import Response
+from starlette.templating import _TemplateResponse
 
 from app.api.router import api_router
 from app.core.middleware import setup_middleware
 from app.core.config import get_settings
 
 settings = get_settings()
+
+# Initialize Jinja2 templates
+templates = Jinja2Templates(directory="app/templates")
 
 
 class HTTPSRedirectMiddleware(BaseHTTPMiddleware):
@@ -101,6 +107,17 @@ def create_application() -> FastAPI:
         ],
         openapi_prefix="",  # Important: This ensures the OpenAPI schema uses the correct base URL
     )
+
+    # Mount static files directory
+    app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+    # Add template routes
+    @app.get("/", include_in_schema=False)
+    async def home(request: Request) -> _TemplateResponse:
+        """Render the home page."""
+        return templates.TemplateResponse(
+            "base.html", {"request": request, "title": "Welcome to HCCC SSO"}
+        )
 
     # Setup middleware
     setup_middleware(app)

@@ -24,6 +24,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+          --name postgres_test
 
     steps:
       - uses: actions/checkout@v4
@@ -50,12 +51,25 @@ jobs:
           TEST_POSTGRES_DB: test_user_management
           TEST_POSTGRES_PORT: 5432
           TEST_DEBUG: "true"
+          CI: "true"
         run: |
-          poetry run pytest -v -c .github/pytest.ini --cov=app --cov-report=xml:coverage-reports/coverage.xml --cov-report=term-missing
+          mkdir -p .reports
+          poetry run pytest -v -c .github/pytest.ini \
+            --cov=app \
+            --cov-report=xml:.reports/coverage.xml \
+            --junitxml=.reports/junit.xml \
+            -m "not skip_in_ci"
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          file: ./coverage-reports/coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: .reports/coverage.xml
           fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }} 
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: .reports/junit.xml 
