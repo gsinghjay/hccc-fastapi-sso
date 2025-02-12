@@ -1,6 +1,27 @@
 # CHANGELOG
 
 
+## v2.0.0 (2025-02-12)
+
+### Features
+
+- **security**: Implement JWT configuration and SQLAlchemy Base
+  ([`be8c48c`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/be8c48c9012c8f6c00eed865937ff8837ab22598))
+
+BREAKING CHANGE: add JWT algorithm configuration and SQLAlchemy Base class
+
+- Add JWT_ALGORITHM setting with HS256 default in Settings class - Add proper type hints and
+  documentation for JWT settings - Implement SQLAlchemy Base class for model inheritance - Follow
+  security best practices for JWT configuration
+
+This change requires updating environment variables with JWT_ALGORITHM if a different algorithm than
+  HS256 is needed.
+
+### Breaking Changes
+
+- **security**: Add JWT algorithm configuration and SQLAlchemy Base class
+
+
 ## v1.2.0 (2025-02-10)
 
 ### Bug Fixes
@@ -460,6 +481,6 @@ BREAKING CHANGE: Removed ENVIRONMENT setting. Use DEBUG=True for development whe
 - **health**: Refactor health check tests to use TestClient
   ([`613ffce`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/613ffce0db52f0bee26cd9fc10f07b813416b5e0))
 
-### BREAKING CHANGES
+### Breaking Changes
 
 - **config**: Removed ENVIRONMENT setting. Use DEBUG=True for development when needed.
