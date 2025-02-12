@@ -1,6 +1,71 @@
 # CHANGELOG
 
 
+## v3.1.0 (2025-02-12)
+
+### Chores
+
+- House cleaning
+  ([`9c742e3`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/9c742e343b9ced2e831ee5582e08d75c5d74058a))
+
+### Code Style
+
+- **middleware**: Improve code formatting in security headers
+  ([`0bbc969`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/0bbc9697d8d1b2fc3c26fe3a3b0f5b17dcabd185))
+
+- Enhance readability of security headers dictionary in development mode - Apply consistent
+  multi-line formatting for dictionary updates
+
+This is a code style improvement that makes the security headers configuration more readable and
+  maintainable, following project formatting standards.
+
+### Documentation
+
+- Enhance auth flow documentation with sequence diagrams
+  ([`9a84019`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/9a840196a46b46ab5780f844d36e6281515c186a))
+
+- Add sequence diagrams for login flow and JWT token generation - Add sequence diagrams for token
+  verification process - Add sequence diagrams for protected endpoint access - Add sequence diagrams
+  for security middleware flow - Add sequence diagrams for rate limiting - Add sequence diagrams for
+  error handling - Integrate diagrams with existing documentation - Maintain security features
+  implementation section
+
+- **roadmap**: Update development roadmap status
+  ([`d8565a6`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/d8565a669c2cca4223b14c3b6bcf269a99f63db6))
+
+- Update Authentication Dependencies section to complete (✅) - Add comprehensive test coverage
+  details - Document JWT token validation features - List type safety improvements
+
+- Enhance Middleware section details - Add CSP configuration information - Document
+  environment-aware CORS - Add rate limiting configuration details - Note code formatting
+  improvements
+
+### Features
+
+- **auth**: Implement FastAPI authentication dependencies
+  ([`9d4d25a`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/9d4d25a81cdbb8a8578e950f56ddb3117d859e93))
+
+- Add get_current_user dependency for required authentication - Add get_current_user_optional for
+  optional authentication - Implement JWT token validation and user retrieval - Add proper error
+  handling for token validation
+
+### Testing
+
+- **auth**: Add comprehensive tests for auth dependencies
+  ([`07c93ff`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/07c93ffe909c5b98e9e14424546317999c36d807))
+
+- Add test cases for get_current_user dependency - Add test cases for get_current_user_optional
+  dependency - Improve async mock setup for database operations - Add test coverage for all error
+  scenarios
+
+- **auth**: Add comprehensive tests for auth dependencies
+  ([`2d51826`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/2d518260656e5b9688ab3b81013e5333b3d3f2a0))
+
+- Add test cases for get_current_user dependency - Add test cases for get_current_user_optional
+  dependency - Improve async mock setup for database operations - Add test coverage for all error
+  scenarios
+
+
 ## v3.0.1 (2025-02-12)
 
 ### Bug Fixes
