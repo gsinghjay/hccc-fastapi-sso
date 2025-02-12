@@ -9,7 +9,6 @@ from uuid import UUID
 from pytest_mock import MockFixture
 from jose import jwt
 from fastapi import HTTPException
-from sqlalchemy import select
 
 from app.core.config import get_settings
 from app.models.user import User
@@ -38,18 +37,18 @@ def mock_db(mock_user: User) -> AsyncMock:
     """Fixture for a mock database session."""
     mock = AsyncMock()
     mock.get_by_email = AsyncMock()
-    
+
     # Set up the execute chain to return a mock user
     scalar_mock = AsyncMock()
     scalar_mock.return_value = mock_user
-    
+
     result_mock = AsyncMock()
     result_mock.scalar_one_or_none = scalar_mock
-    
+
     execute_mock = AsyncMock()
     execute_mock.return_value = result_mock
     mock.execute = execute_mock
-    
+
     return mock
 
 
