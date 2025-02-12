@@ -8,7 +8,12 @@ entryPoints:
   websecure:
     address: ":443"
     http:
-      tls: {}
+      tls:
+        certResolver: default
+        domains:
+          - main: "localhost"
+            sans:
+              - "*.localhost"
   metrics:
     address: ":8082"
 
@@ -18,6 +23,16 @@ providers:
     exposedByDefault: false
     network: web
     watch: true
+
+# Development-only TLS configuration
+certificatesResolvers:
+  default:
+    acme:
+      email: "dev@localhost"
+      storage: "/etc/traefik/acme/acme.json"
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"  # Staging server for development
+      httpChallenge:
+        entryPoint: web
 
 log:
   level: DEBUG  # More verbose logging for development
