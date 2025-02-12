@@ -38,6 +38,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     libpq5 \
     curl \
+    postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Poetry from builder
@@ -54,6 +55,8 @@ COPY . .
 # Create necessary directories and set permissions
 RUN mkdir -p /app/coverage-reports/html && \
     mkdir -p /ms-playwright && \
+    mkdir -p /app/alembic && \
+    chmod +x /app/docker/scripts/start.sh && \
     chown -R appuser:appuser /app /ms-playwright
 
 # Install Playwright browsers as root
@@ -77,14 +80,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f "http://localhost:8000/api/v1/health" || exit 1
 
 # Command to run the application with Gunicorn and Uvicorn workers
-CMD ["sh", "-c", "gunicorn app.main:app \
-    --bind $HOST:$PORT \
-    --worker-class uvicorn.workers.UvicornWorker \
-    --workers $MAX_WORKERS \
-    --worker-connections 1000 \
-    --forwarded-allow-ips '*' \
-    --proxy-allow-from '*' \
-    --log-level info \
-    --error-logfile - \
-    --access-logfile - \
-    --timeout 120"] 
+CMD ["/app/docker/scripts/start.sh"] 

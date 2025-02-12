@@ -48,19 +48,41 @@ class LoginRequest(BaseModel):
     Schema for login requests.
 
     Attributes:
-        email (EmailStr): User's email address
-        password (str): User's password
+        email (EmailStr): User's email address for authentication
+        password (str): User's password for authentication
     """
 
     email: EmailStr = Field(
-        ..., description="User's email address", examples=["user@example.com"]
+        ...,
+        description="User's email address for authentication",
+        examples=["john.doe@example.com", "jane.smith@company.com"],
     )
     password: str = Field(
-        ..., description="User's password", examples=["securepassword123"]
+        ...,
+        description="User's password for authentication (minimum 8 characters, must contain letters, numbers, and special characters)",
+        examples=["SecureP@ssw0rd123"],
+        min_length=8,
+        max_length=100,
+        pattern=r"[A-Za-z\d@$!%*#?&]{8,}",  # At least 8 chars, allowing letters, numbers, and special chars
     )
 
     model_config = {
         "json_schema_extra": {
-            "example": {"email": "user@example.com", "password": "securepassword123"}
+            "example": {
+                "email": "john.doe@example.com",
+                "password": "SecureP@ssw0rd123",
+            },
+            "examples": [
+                {
+                    "email": "john.doe@example.com",
+                    "password": "SecureP@ssw0rd123",
+                    "summary": "Standard user login",
+                },
+                {
+                    "email": "jane.smith@company.com",
+                    "password": "MySecureP@ss2024",
+                    "summary": "Business user login",
+                },
+            ],
         }
     }
