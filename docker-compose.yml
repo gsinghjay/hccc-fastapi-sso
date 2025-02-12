@@ -39,7 +39,7 @@ services:
       - ./tests:/app/tests
       - ./alembic:/app/alembic
       - ./pytest.ini:/app/pytest.ini
-      - coverage-reports:/app/coverage-reports
+      - ./coverage-reports:/app/coverage-reports
     depends_on:
       db:
         condition: service_healthy
@@ -148,6 +148,4 @@ volumes:
   postgres_data:
     driver: local
   traefik_certs:
-    driver: local
-  coverage-reports:
     driver: local 
