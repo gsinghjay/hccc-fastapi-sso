@@ -1,6 +1,30 @@
 # CHANGELOG
 
 
+## v3.0.1 (2025-02-12)
+
+### Bug Fixes
+
+- **security**: Update CSP headers to support ReDoc functionality
+  ([`60535d5`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/60535d5938358d1a32e84ded68938da11fda9ef5))
+
+- Add worker-src and script-src directives for Web Workers - Allow necessary sources for ReDoc
+  documentation - Consolidate security headers in FastAPI middleware - Improve development
+  environment CSP configuration - Remove redundant security headers from Traefik configuration
+
+### Documentation
+
+- Enhance project documentation and roadmap
+  ([`92b9d0c`](https://github.com/gsinghjay/hccc-fastapi-sso/commit/92b9d0c4416ce01d1207802b534f61b6f93487bc))
+
+- Add comprehensive service layer documentation with examples - Update project roadmap with
+  documentation milestone - Improve testing documentation with detailed examples - Maintain Docker
+  Compose configuration in roadmap - Reorganize development steps for better clarity
+
+This commit improves the overall documentation quality and organization, making it easier for
+  developers to understand the project structure, testing approach, and development workflow.
+
+
 ## v3.0.0 (2025-02-12)
 
 ### Chores
