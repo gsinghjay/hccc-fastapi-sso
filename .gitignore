@@ -21,7 +21,8 @@ htmlcov/
 .reports/
 !.reports/.gitkeep
 coverage-reports/html/
-coverage.xml
+coverage-reports/coverage.xml
+**/coverage.xml
 
 # IDE
 target/
